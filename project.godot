@@ -12,13 +12,17 @@ config_version=5
 
 config/name="Azart"
 run/main_scene="res://menu.tscn"
-config/features=PackedStringArray("4.3", "Mobile")
+config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
 
 [editor]
 
 version_control/plugin_name="GitPlugin"
 version_control/autoload_on_startup=true
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
 
 [rendering]
 
