@@ -34,7 +34,7 @@ func _on_death_body_entered(body: Node2D) -> void:
 func death ():
 	alive = false
 	anim.play(\"Death\")
-	await anim.animation_finished
+	await anim.animation_finished #await заставляет ожидать пока действие написаное после не закончиться
 	queue_free()
 
 func _physics_process(delta: float) -> void:
@@ -43,7 +43,7 @@ func _physics_process(delta: float) -> void:
 		if not is_on_floor():
 			velocity += get_gravity() * delta
 		var player = $\"../../Player/Player\"
-		var direction = (player.position - self.position).normalized()
+		var direction = (player.position - self.position).normalized() #normalized возвращает новый вектор, который сохраняет соотношения между x и y исходного вектора (точки в том же направлении), но изменяет длину, чтобы быть одним. приводит значения к от 0 до 1
 		if chase == true:
 			velocity.x = direction.x * SPEED
 			anim.play(\"Run\")
