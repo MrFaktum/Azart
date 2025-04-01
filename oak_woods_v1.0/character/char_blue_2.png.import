@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cdjjpcdenkbh7"
-path="res://.godot/imported/char_blue.png-76bd7e0db174687e4f79f7a5387d23a1.ctex"
+uid="uid://bbsribuweb683"
+path="res://.godot/imported/char_blue_2.png-4fd595094923126a7191d8f5994c1d8f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://oak_woods_v1.0/character/char_blue.png"
-dest_files=["res://.godot/imported/char_blue.png-76bd7e0db174687e4f79f7a5387d23a1.ctex"]
+source_file="res://oak_woods_v1.0/character/char_blue_2.png"
+dest_files=["res://.godot/imported/char_blue_2.png-4fd595094923126a7191d8f5994c1d8f.ctex"]
 
 [params]
 
