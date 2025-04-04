@@ -1,52 +1,135 @@
-[gd_scene load_steps=75 format=3 uid="uid://ls6wblu7j7xp"]
+[gd_scene load_steps=87 format=3 uid="uid://ls6wblu7j7xp"]
 
 [ext_resource type="Texture2D" uid="uid://br30dvgd7cxg6" path="res://oak_woods_v1.0/character/char_blue_1.png" id="1_l8h54"]
 [ext_resource type="Texture2D" uid="uid://bbsribuweb683" path="res://oak_woods_v1.0/character/char_blue_2.png" id="2_4ntmi"]
 
 [sub_resource type="GDScript" id="GDScript_35vvw"]
 script/source = "extends CharacterBody2D
+#State Machine список состояний
+enum {
+	MOVE,
+	ATTACK1,
+	ATTACK2,
+	ATTACK3,
+	BLOCK,
+	SLIDE
+}
 
 const SPEED = 300.0
 const JUMP_VELOCITY = -400.0
+var state = MOVE
 var health = 100
 var gold = 0
+var combo = false
 
 @onready var anim = $AnimatedSprite2D #можно написать по другому get_node(\"AnimatedSprite2D\")
+@onready var animPlayer = $AnimationPlayer
 
 func _physics_process(delta: float) -> void:
+	match state:
+		MOVE:
+			move_state()
+		ATTACK1:
+			attack1_state()
+		ATTACK2:
+			attack2_state()
+		ATTACK3:
+			attack3_state()
+		BLOCK:
+			block_state()
+		SLIDE:
+			slide_state()
+			
 	# Add the gravity.
 	if not is_on_floor():
 		velocity += get_gravity() * delta #delta переменная которая зависит от мощиности пк
 
-	# Handle jump.
-	if Input.is_action_just_pressed(\"jump\") and is_on_floor(): #Input.is_action_just_pressed(\"ui_accept\") and is_on_floor() фиксирует нажатие на пробел когда игрок на полу
-		velocity.y = JUMP_VELOCITY
-		anim.play(\"Jump\")
-
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
-	var direction := Input.get_axis(\"left\", \"right\") #Input.get_axis(\"ui_left\", \"ui_right\") получает ось -1 или 1 при нажетие стрелок лево или право
-	if direction:
-		velocity.x = direction * SPEED
-		if velocity.y == 0:
-			anim.play(\"Run\")
-	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED) #move_toward(velocity.x, 0, SPEED) скорость стремиться к 0
-		if velocity.y == 0:
-			anim.play(\"Idel\")
-	if direction == -1:
-		$AnimatedSprite2D.flip_h = true
-	elif direction == 1:
-		$AnimatedSprite2D.flip_h = false
-		
-	if velocity.y > 0:
-		anim.play(\"Fall\")
-
+	# Жизнь игрока
 	if health <= 0:
+		health = 0
+		animPlayer.play(\"Death\")
+		await animPlayer.animation_finished #await заставляет ожидать пока действие написаное после не закончиться
 		queue_free()
 		get_tree().change_scene_to_file(\"res://menu.tscn\")
 
 	move_and_slide()
+
+# Бег игрока
+func move_state():
+	var direction := Input.get_axis(\"left\", \"right\") #Input.get_axis(\"left\", \"right\") получает ось -1 или 1 при нажетие стрелок лево или право
+	if direction:
+		velocity.x = direction * SPEED
+		if velocity.y == 0:
+			animPlayer.play(\"Run\")
+	else:
+		velocity.x = move_toward(velocity.x, 0, SPEED) #move_toward(velocity.x, 0, SPEED) скорость стремиться к 0
+		if velocity.y == 0:
+			animPlayer.play(\"Idle\")
+	if direction == -1:
+		anim.flip_h = true
+	elif direction == 1:
+		anim.flip_h = false
+	
+	if Input.is_action_pressed(\"jump\") and is_on_floor(): #Input.is_action_just_pressed(\"ui_accept\") and is_on_floor() фиксирует нажатие на пробел когда игрок на полу
+		velocity.y = JUMP_VELOCITY
+		animPlayer.play(\"Jump\")
+
+	if velocity.y > 0:
+		animPlayer.play(\"Fall\")
+	
+	if Input.is_action_pressed(\"block\"):
+		state = BLOCK
+	if Input.is_action_pressed(\"slide\") and is_on_floor():
+		state = SLIDE
+	if Input.is_action_just_pressed(\"attack\") and attack_cooldown == false:
+		state = ATTACK1
+
+func slide_state():
+	if is_on_floor() and anim.flip_h == false:
+		velocity.x = 300
+	elif is_on_floor() and anim.flip_h == true:
+		velocity.x = -300
+	animPlayer.play(\"Slide\")
+	
+	if Input.is_action_pressed(\"block\"):
+		state = BLOCK
+	if Input.is_action_pressed(\"jump\") or Input.is_action_pressed(\"left\") or Input.is_action_pressed(\"right\"):
+		animPlayer.animation_finished
+		state = MOVE
+		
+	await animPlayer.animation_finished
+	state = MOVE
+	
+func block_state():
+	velocity.x = 0
+	animPlayer.play(\"Block\")
+	if Input.is_action_just_released(\"block\"):
+		state = MOVE
+
+func combo1():
+	combo = true
+	await animPlayer.animation_finished
+	combo = false
+
+func attack1_state():
+	if Input.is_action_just_pressed(\"attack\") and combo == true:
+		state = ATTACK2
+	velocity.x = 0
+	animPlayer.play(\"Attack1\")
+	await animPlayer.animation_finished
+	state = MOVE
+
+func attack2_state():
+	if Input.is_action_just_pressed(\"attack\") and combo == true:
+		state = ATTACK3
+	animPlayer.play(\"Attack2\")
+	await animPlayer.animation_finished
+	state = MOVE
+
+func attack3_state():
+	animPlayer.play(\"Attack3\")
+	await animPlayer.animation_finished
+	state = MOVE
 "
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_75gox"]
@@ -501,7 +584,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_apopc")
 }],
 "loop": true,
-"name": &"Idel",
+"name": &"Idle",
 "speed": 8.0
 }, {
 "frames": [{
@@ -592,6 +675,350 @@ animations = [{
 "speed": 10.0
 }]
 
+[sub_resource type="Animation" id="Animation_4ntmi"]
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Attack1"]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.4),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"combo1"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_btcbx"]
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [0, 1, 2]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Attack2"]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.2),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"combo1"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_gwnis"]
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Attack3"]
+}
+
+[sub_resource type="Animation" id="Animation_k53q1"]
+length = 0.333333
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.166667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [0, 1]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Block"]
+}
+
+[sub_resource type="Animation" id="Animation_fhl08"]
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Damage"]
+}
+
+[sub_resource type="Animation" id="Animation_vtle1"]
+length = 1.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Death"]
+}
+
+[sub_resource type="Animation" id="Animation_od3ui"]
+length = 0.8
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Fall"]
+}
+
+[sub_resource type="Animation" id="Animation_00tjw"]
+length = 0.75
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.125, 0.25, 0.375, 0.5, 0.625),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Idle"]
+}
+
+[sub_resource type="Animation" id="Animation_x3vf3"]
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Jump"]
+}
+
+[sub_resource type="Animation" id="Animation_apopc"]
+length = 0.8
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Run"]
+}
+
+[sub_resource type="Animation" id="Animation_5htga"]
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Slide"]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_p5o4e"]
+_data = {
+&"Attack1": SubResource("Animation_4ntmi"),
+&"Attack2": SubResource("Animation_btcbx"),
+&"Attack3": SubResource("Animation_gwnis"),
+&"Block": SubResource("Animation_k53q1"),
+&"Damage": SubResource("Animation_fhl08"),
+&"Death": SubResource("Animation_vtle1"),
+&"Fall": SubResource("Animation_od3ui"),
+&"Idle": SubResource("Animation_00tjw"),
+&"Jump": SubResource("Animation_x3vf3"),
+&"Run": SubResource("Animation_apopc"),
+&"Slide": SubResource("Animation_5htga")
+}
+
 [node name="Player" type="CharacterBody2D"]
 script = SubResource("GDScript_35vvw")
 
@@ -601,10 +1028,9 @@ shape = SubResource("CapsuleShape2D_75gox")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -13)
 sprite_frames = SubResource("SpriteFrames_gl0s2")
-animation = &"Slide"
-autoplay = "Idel"
-frame = 7
-frame_progress = 1.0
+animation = &"Attack2"
+autoplay = "Idle"
+frame = 2
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -13)
@@ -618,3 +1044,6 @@ position_smoothing_enabled = true
 drag_horizontal_enabled = true
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_p5o4e")
+}
