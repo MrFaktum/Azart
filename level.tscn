@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=4 uid="uid://byii4i442ckev"]
+[gd_scene load_steps=13 format=4 uid="uid://byii4i442ckev"]
 
 [ext_resource type="PackedScene" uid="uid://ls6wblu7j7xp" path="res://Player/player.tscn" id="1_bk5fi"]
 [ext_resource type="Texture2D" uid="uid://hwodh2c4uy6b" path="res://oak_woods_v1.0/background/background_layer_1.png" id="2_1sm0g"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://crmyjlx6rxeka" path="res://oak_woods_v1.0/background/background_layer_3.png" id="4_c11f0"]
 [ext_resource type="Texture2D" uid="uid://bvet6xm6oqvre" path="res://oak_woods_v1.0/oak_woods_tileset.png" id="5_t1gi7"]
 [ext_resource type="PackedScene" uid="uid://sh87g1d1l3df" path="res://Mobs/skeleton.tscn" id="6_dc5jb"]
+[ext_resource type="PackedScene" uid="uid://twinfrlm3e2x" path="res://Mobs/mushroom.tscn" id="7_n6hdu"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_oeicr"]
 texture = ExtResource("5_t1gi7")
@@ -428,6 +429,7 @@ texture = ExtResource("5_t1gi7")
 
 [sub_resource type="TileSet" id="TileSet_enu7q"]
 physics_layer_0/collision_layer = 1
+physics_layer_0/collision_mask = 0
 sources/0 = SubResource("TileSetAtlasSource_oeicr")
 
 [sub_resource type="GDScript" id="GDScript_1ainy"]
@@ -527,13 +529,16 @@ position = Vector2(224, 472)
 [node name="Mobs" type="Node2D" parent="."]
 
 [node name="Skeleton" parent="Mobs" instance=ExtResource("6_dc5jb")]
-position = Vector2(928, 496)
+position = Vector2(1088, 552)
 
 [node name="Skeleton2" parent="Mobs" instance=ExtResource("6_dc5jb")]
-position = Vector2(684, 523)
+position = Vector2(992, 552)
 
 [node name="Skeleton3" parent="Mobs" instance=ExtResource("6_dc5jb")]
-position = Vector2(504, 532)
+position = Vector2(896, 552)
+
+[node name="Mushroom" parent="Mobs" instance=ExtResource("7_n6hdu")]
+position = Vector2(552, 552)
 
 [node name="Collectibles" type="Node2D" parent="."]
 script = SubResource("GDScript_km5ld")

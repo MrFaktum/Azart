@@ -42,8 +42,10 @@ func _physics_process(delta: float) -> void:
 	if alive == true:
 		if not is_on_floor():
 			velocity += get_gravity() * delta
+			
 		var player = $\"../../Player/Player\"
 		var direction = (player.position - self.position).normalized() #normalized возвращает новый вектор, который сохраняет соотношения между x и y исходного вектора (точки в том же направлении), но изменяет длину, чтобы быть одним. приводит значения к от 0 до 1
+		
 		if chase == true:
 			velocity.x = direction.x * SPEED
 			anim.play(\"Run\")
@@ -186,6 +188,7 @@ size = Vector2(10, 2)
 size = Vector2(22, 2)
 
 [node name="Skeleton" type="CharacterBody2D"]
+collision_layer = 5
 script = SubResource("GDScript_l6jis")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
