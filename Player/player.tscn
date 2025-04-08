@@ -21,6 +21,7 @@ var state = MOVE
 var health = 100
 var gold = 0
 var combo = false
+var player_pos
 
 @onready var anim = $AnimatedSprite2D #можно написать по другому get_node(\"AnimatedSprite2D\")
 @onready var animPlayer = $AnimationPlayer
@@ -53,6 +54,9 @@ func _physics_process(delta: float) -> void:
 		get_tree().change_scene_to_file(\"res://menu.tscn\")
 
 	move_and_slide()
+	
+	player_pos = self.position
+	Signals.emit_signal(\"player_position_update\", player_pos)
 
 # Бег игрока
 func move_state():
