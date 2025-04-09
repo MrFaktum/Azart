@@ -1,20 +1,13 @@
-[gd_scene load_steps=87 format=3 uid="uid://ls6wblu7j7xp"]
+[gd_scene load_steps=88 format=3 uid="uid://ls6wblu7j7xp"]
 
 [ext_resource type="Texture2D" uid="uid://br30dvgd7cxg6" path="res://oak_woods_v1.0/character/char_blue_1.png" id="1_l8h54"]
 [ext_resource type="Texture2D" uid="uid://bbsribuweb683" path="res://oak_woods_v1.0/character/char_blue_2.png" id="2_4ntmi"]
+[ext_resource type="PackedScene" uid="uid://d0k83kjfcp6f3" path="res://DamageBox/damage_box.tscn" id="3_btcbx"]
 
 [sub_resource type="GDScript" id="GDScript_35vvw"]
 script/source = "extends CharacterBody2D
-#State Machine список состояний
-enum {
-	MOVE,
-	ATTACK1,
-	ATTACK2,
-	ATTACK3,
-	BLOCK,
-	SLIDE
-}
 
+#Констаннты и переменные
 const SPEED = 300.0
 const JUMP_VELOCITY = -400.0
 var state = MOVE
@@ -22,118 +15,175 @@ var health = 100
 var gold = 0
 var combo = false
 var player_pos
-
-@onready var anim = $AnimatedSprite2D #можно написать по другому get_node(\"AnimatedSprite2D\")
+@onready var anim = $AnimatedSprite2D
 @onready var animPlayer = $AnimationPlayer
 
-func _physics_process(delta: float) -> void:
-	match state:
-		MOVE:
-			move_state()
-		ATTACK1:
-			attack1_state()
-		ATTACK2:
-			attack2_state()
-		ATTACK3:
-			attack3_state()
-		BLOCK:
-			block_state()
-		SLIDE:
-			slide_state()
-			
-	# Add the gravity.
-	if not is_on_floor():
-		velocity += get_gravity() * delta #delta переменная которая зависит от мощиности пк
+#State Machine список состояний
+enum {
+	MOVE,
+	ATTACK,
+	СOMBO1,
+	СOMBO2,
+	BLOCK,
+	SLIDE,
+	DAMAGE,
+	DEATH
+}
 
-	# Жизнь игрока
-	if health <= 0:
-		health = 0
-		animPlayer.play(\"Death\")
-		await animPlayer.animation_finished #await заставляет ожидать пока действие написаное после не закончиться
-		queue_free()
-		get_tree().change_scene_to_file(\"res://menu.tscn\")
+func  _ready() -> void:
+	#Получение сигнала о нанесенном уроне игроку врагом
+	Signals.connect(\"enemy_attack\", Callable(self, \"_on_damage_received\"))
 
-	move_and_slide()
-	
-	player_pos = self.position
-	Signals.emit_signal(\"player_position_update\", player_pos)
-
-# Бег игрока
+#Бег и прышки
 func move_state():
+	#Бег
 	var direction := Input.get_axis(\"left\", \"right\") #Input.get_axis(\"left\", \"right\") получает ось -1 или 1 при нажетие стрелок лево или право
 	if direction:
 		velocity.x = direction * SPEED
 		if velocity.y == 0:
 			animPlayer.play(\"Run\")
+	#Остановка
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED) #move_toward(velocity.x, 0, SPEED) скорость стремиться к 0
 		if velocity.y == 0:
 			animPlayer.play(\"Idle\")
+	
+	#Разворот спрайта относительно раправления движения
 	if direction == -1:
 		anim.flip_h = true
 	elif direction == 1:
 		anim.flip_h = false
 	
+	#Прыжок
 	if Input.is_action_pressed(\"jump\") and is_on_floor(): #Input.is_action_just_pressed(\"ui_accept\") and is_on_floor() фиксирует нажатие на пробел когда игрок на полу
 		velocity.y = JUMP_VELOCITY
 		animPlayer.play(\"Jump\")
-
+	
+	#Включение анимации падения
 	if velocity.y > 0:
 		animPlayer.play(\"Fall\")
 	
+	#Переключение состояния взависимости от нажатия кнопок
 	if Input.is_action_pressed(\"block\"):
 		state = BLOCK
 	if Input.is_action_pressed(\"slide\") and is_on_floor():
 		state = SLIDE
 	if Input.is_action_just_pressed(\"attack\"):
-		state = ATTACK1
+		state = ATTACK
 
+#Подкат
 func slide_state():
+	#Если на земле и взависимости от того куда смотришь ставиться скорость и включается анимация подката
 	if is_on_floor() and anim.flip_h == false:
 		velocity.x = 300
 	elif is_on_floor() and anim.flip_h == true:
 		velocity.x = -300
 	animPlayer.play(\"Slide\")
 	
+	#Переключение состояния взависимости от нажатия кнопок
 	if Input.is_action_pressed(\"block\"):
 		state = BLOCK
 	if Input.is_action_pressed(\"jump\") or Input.is_action_pressed(\"left\") or Input.is_action_pressed(\"right\"):
-		animPlayer.animation_finished
 		state = MOVE
-		
+	if Input.is_action_pressed(\"attack\"):
+		state = ATTACK
+	
+	#Ожидается завержение анимации и переход в состояние MOVE
 	await animPlayer.animation_finished
 	state = MOVE
-	
+
+#Блокирование щитом
 func block_state():
 	velocity.x = 0
 	animPlayer.play(\"Block\")
 	if Input.is_action_just_released(\"block\"):
 		state = MOVE
 
-func combo1():
+#Состояние комбо
+func combo_state():
 	combo = true
 	await animPlayer.animation_finished
 	combo = false
 
-func attack1_state():
+#Основная атака
+func attack_state():
 	if Input.is_action_just_pressed(\"attack\") and combo == true:
-		state = ATTACK2
+		state = СOMBO1
 	velocity.x = 0
-	animPlayer.play(\"Attack1\")
+	animPlayer.play(\"Attack\")
 	await animPlayer.animation_finished
 	state = MOVE
 
-func attack2_state():
+#Первая атака в комбо
+func combo1_state():
 	if Input.is_action_just_pressed(\"attack\") and combo == true:
-		state = ATTACK3
-	animPlayer.play(\"Attack2\")
+		state = СOMBO2
+	animPlayer.play(\"Сombo1\")
 	await animPlayer.animation_finished
 	state = MOVE
 
-func attack3_state():
-	animPlayer.play(\"Attack3\")
+#Вторая атака в комбо
+func combo2_state():
+	animPlayer.play(\"Сombo2\")
 	await animPlayer.animation_finished
 	state = MOVE
+
+#Анимация получения урона
+func damage_state():
+	velocity.x = 0
+	anim.play(\"Damage\")
+	await anim.animation_finished
+	state = MOVE
+
+#Смерть
+func death_state():
+	velocity.x = 0
+	animPlayer.play(\"Death\")
+	await get_tree().create_timer(1.2).timeout
+	queue_free()
+	get_tree().change_scene_to_file.bind(\"res://menu.tscn\").call_deferred()
+
+#Получение значения урона от врага
+func _on_damage_received(enemy_damage):
+	health -= enemy_damage
+	if health <= 0:
+		health = 0
+		state = DEATH
+	else:
+		state = DAMAGE
+
+func _physics_process(delta: float) -> void:
+	#Гравитация
+	if not is_on_floor():
+		velocity += get_gravity() * delta #delta переменная которая зависит от мощиности пк
+	
+	#State Machine список состояний и какие ф-ции вызываются при определенном состоянии
+	match state:
+		MOVE:
+			move_state()
+		ATTACK:
+			attack_state()
+		СOMBO1:
+			combo1_state()
+		СOMBO2:
+			combo2_state()
+		BLOCK:
+			block_state()
+		SLIDE:
+			slide_state()
+		DAMAGE:
+			damage_state()
+		DEATH:
+			death_state()
+
+	
+
+	move_and_slide()
+
+	#Получаем свою позицию
+	player_pos = self.position
+	#Передаем свое местоположение в глобальный скрипт
+	Signals.emit_signal(\"player_position_update\", player_pos)
 "
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_75gox"]
@@ -161,50 +211,6 @@ region = Rect2(224, 56, 56, 56)
 [sub_resource type="AtlasTexture" id="AtlasTexture_m0h3t"]
 atlas = ExtResource("1_l8h54")
 region = Rect2(280, 56, 56, 56)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_f4lon"]
-atlas = ExtResource("1_l8h54")
-region = Rect2(280, 56, 56, 56)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_8ynux"]
-atlas = ExtResource("1_l8h54")
-region = Rect2(336, 56, 56, 56)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_d30e8"]
-atlas = ExtResource("1_l8h54")
-region = Rect2(392, 56, 56, 56)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_6pogt"]
-atlas = ExtResource("2_4ntmi")
-region = Rect2(0, 224, 56, 56)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ie76m"]
-atlas = ExtResource("2_4ntmi")
-region = Rect2(56, 224, 56, 56)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_dy65m"]
-atlas = ExtResource("2_4ntmi")
-region = Rect2(112, 224, 56, 56)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_maysp"]
-atlas = ExtResource("2_4ntmi")
-region = Rect2(168, 224, 56, 56)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_1l10g"]
-atlas = ExtResource("2_4ntmi")
-region = Rect2(224, 224, 56, 56)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_6rl0i"]
-atlas = ExtResource("2_4ntmi")
-region = Rect2(280, 224, 56, 56)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_7x5p2"]
-atlas = ExtResource("2_4ntmi")
-region = Rect2(336, 224, 56, 56)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_6eb1q"]
-atlas = ExtResource("2_4ntmi")
-region = Rect2(392, 224, 56, 56)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_i4o1l"]
 atlas = ExtResource("1_l8h54")
@@ -414,6 +420,50 @@ region = Rect2(336, 112, 56, 56)
 atlas = ExtResource("2_4ntmi")
 region = Rect2(392, 112, 56, 56)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_f4lon"]
+atlas = ExtResource("1_l8h54")
+region = Rect2(280, 56, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8ynux"]
+atlas = ExtResource("1_l8h54")
+region = Rect2(336, 56, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d30e8"]
+atlas = ExtResource("1_l8h54")
+region = Rect2(392, 56, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6pogt"]
+atlas = ExtResource("2_4ntmi")
+region = Rect2(0, 224, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ie76m"]
+atlas = ExtResource("2_4ntmi")
+region = Rect2(56, 224, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dy65m"]
+atlas = ExtResource("2_4ntmi")
+region = Rect2(112, 224, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_maysp"]
+atlas = ExtResource("2_4ntmi")
+region = Rect2(168, 224, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1l10g"]
+atlas = ExtResource("2_4ntmi")
+region = Rect2(224, 224, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6rl0i"]
+atlas = ExtResource("2_4ntmi")
+region = Rect2(280, 224, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7x5p2"]
+atlas = ExtResource("2_4ntmi")
+region = Rect2(336, 224, 56, 56)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6eb1q"]
+atlas = ExtResource("2_4ntmi")
+region = Rect2(392, 224, 56, 56)
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_gl0s2"]
 animations = [{
 "frames": [{
@@ -436,50 +486,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_m0h3t")
 }],
 "loop": false,
-"name": &"Attack1",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_f4lon")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_8ynux")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_d30e8")
-}],
-"loop": false,
-"name": &"Attack2",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_6pogt")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ie76m")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_dy65m")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_maysp")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_1l10g")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_6rl0i")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_7x5p2")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_6eb1q")
-}],
-"loop": false,
-"name": &"Attack3",
+"name": &"Attack",
 "speed": 10.0
 }, {
 "frames": [{
@@ -677,9 +684,52 @@ animations = [{
 "loop": false,
 "name": &"Slide",
 "speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f4lon")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8ynux")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d30e8")
+}],
+"loop": false,
+"name": &"Сombo1",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6pogt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ie76m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dy65m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_maysp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1l10g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6rl0i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7x5p2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6eb1q")
+}],
+"loop": false,
+"name": &"Сombo2",
+"speed": 10.0
 }]
 
-[sub_resource type="Animation" id="Animation_4ntmi"]
+[sub_resource type="Animation" id="Animation_btcbx"]
 length = 0.6
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -703,7 +753,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": ["Attack1"]
+"values": ["Attack"]
 }
 tracks/2/type = "method"
 tracks/2/imported = false
@@ -716,79 +766,11 @@ tracks/2/keys = {
 "transitions": PackedFloat32Array(1),
 "values": [{
 "args": [],
-"method": &"combo1"
-}]
-}
-
-[sub_resource type="Animation" id="Animation_btcbx"]
-length = 0.3
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("AnimatedSprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 1,
-"values": [0, 1, 2]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("AnimatedSprite2D:animation")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": ["Attack2"]
-}
-tracks/2/type = "method"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath(".")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0.2),
-"transitions": PackedFloat32Array(1),
-"values": [{
-"args": [],
-"method": &"combo1"
+"method": &"combo_state"
 }]
 }
 
 [sub_resource type="Animation" id="Animation_gwnis"]
-length = 0.8
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("AnimatedSprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [0, 1, 2, 3, 4, 5, 6, 7]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("AnimatedSprite2D:animation")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": ["Attack3"]
-}
-
-[sub_resource type="Animation" id="Animation_k53q1"]
 length = 0.333333
 loop_mode = 1
 tracks/0/type = "value"
@@ -816,7 +798,7 @@ tracks/1/keys = {
 "values": ["Block"]
 }
 
-[sub_resource type="Animation" id="Animation_fhl08"]
+[sub_resource type="Animation" id="Animation_k53q1"]
 length = 0.4
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -843,7 +825,7 @@ tracks/1/keys = {
 "values": ["Damage"]
 }
 
-[sub_resource type="Animation" id="Animation_vtle1"]
+[sub_resource type="Animation" id="Animation_fhl08"]
 length = 1.2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -870,7 +852,7 @@ tracks/1/keys = {
 "values": ["Death"]
 }
 
-[sub_resource type="Animation" id="Animation_od3ui"]
+[sub_resource type="Animation" id="Animation_vtle1"]
 length = 0.8
 loop_mode = 1
 tracks/0/type = "value"
@@ -898,7 +880,7 @@ tracks/1/keys = {
 "values": ["Fall"]
 }
 
-[sub_resource type="Animation" id="Animation_00tjw"]
+[sub_resource type="Animation" id="Animation_od3ui"]
 length = 0.75
 loop_mode = 1
 tracks/0/type = "value"
@@ -926,7 +908,7 @@ tracks/1/keys = {
 "values": ["Idle"]
 }
 
-[sub_resource type="Animation" id="Animation_x3vf3"]
+[sub_resource type="Animation" id="Animation_00tjw"]
 length = 0.8
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -953,7 +935,7 @@ tracks/1/keys = {
 "values": ["Jump"]
 }
 
-[sub_resource type="Animation" id="Animation_apopc"]
+[sub_resource type="Animation" id="Animation_x3vf3"]
 length = 0.8
 loop_mode = 1
 tracks/0/type = "value"
@@ -981,7 +963,7 @@ tracks/1/keys = {
 "values": ["Run"]
 }
 
-[sub_resource type="Animation" id="Animation_5htga"]
+[sub_resource type="Animation" id="Animation_apopc"]
 length = 0.8
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -1008,19 +990,87 @@ tracks/1/keys = {
 "values": ["Slide"]
 }
 
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_p5o4e"]
+[sub_resource type="Animation" id="Animation_5htga"]
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [0, 1, 2]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Сombo1"]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.2),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"combo_state"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_p5o4e"]
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["Сombo2"]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_gu6f8"]
 _data = {
-&"Attack1": SubResource("Animation_4ntmi"),
-&"Attack2": SubResource("Animation_btcbx"),
-&"Attack3": SubResource("Animation_gwnis"),
-&"Block": SubResource("Animation_k53q1"),
-&"Damage": SubResource("Animation_fhl08"),
-&"Death": SubResource("Animation_vtle1"),
-&"Fall": SubResource("Animation_od3ui"),
-&"Idle": SubResource("Animation_00tjw"),
-&"Jump": SubResource("Animation_x3vf3"),
-&"Run": SubResource("Animation_apopc"),
-&"Slide": SubResource("Animation_5htga")
+&"Attack": SubResource("Animation_btcbx"),
+&"Block": SubResource("Animation_gwnis"),
+&"Damage": SubResource("Animation_k53q1"),
+&"Death": SubResource("Animation_fhl08"),
+&"Fall": SubResource("Animation_vtle1"),
+&"Idle": SubResource("Animation_od3ui"),
+&"Jump": SubResource("Animation_00tjw"),
+&"Run": SubResource("Animation_x3vf3"),
+&"Slide": SubResource("Animation_apopc"),
+&"Сombo1": SubResource("Animation_5htga"),
+&"Сombo2": SubResource("Animation_p5o4e")
 }
 
 [node name="Player" type="CharacterBody2D"]
@@ -1033,8 +1083,13 @@ shape = SubResource("CapsuleShape2D_75gox")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -13)
 sprite_frames = SubResource("SpriteFrames_gl0s2")
-animation = &"Idle"
+animation = &"Death"
 autoplay = "Idle"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_gu6f8")
+}
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -13)
@@ -1047,8 +1102,19 @@ limit_bottom = 648
 position_smoothing_enabled = true
 drag_horizontal_enabled = true
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_p5o4e")
-}
-autoplay = "Idle"
+[node name="AttackDirection" type="Node2D" parent="."]
+
+[node name="DamageBox" parent="AttackDirection" instance=ExtResource("3_btcbx")]
+
+[node name="HurtBox" parent="AttackDirection/DamageBox" index="0"]
+collision_layer = 16
+collision_mask = 0
+
+[node name="HitBox" parent="AttackDirection/DamageBox" index="1"]
+collision_layer = 0
+collision_mask = 32
+
+[node name="CollisionShape2D" parent="AttackDirection/DamageBox/HitBox" index="0"]
+position = Vector2(19, 0)
+
+[editable path="AttackDirection/DamageBox"]

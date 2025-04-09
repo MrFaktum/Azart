@@ -2,6 +2,8 @@ extends Control
 
 #Меню работы с базой данных разработчика
 
+#(Для себя) написать коментарии что делает каждая деталь
+
 var database : SQLite
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

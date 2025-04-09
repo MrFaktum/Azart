@@ -8,6 +8,8 @@
 [sub_resource type="GDScript" id="GDScript_l6jis"]
 script/source = "extends CharacterBody2D
 
+#(Для себя) переделать
+
 var chase = false
 const SPEED = 100.0
 @onready var anim = $AnimatedSprite2D
