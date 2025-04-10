@@ -7,16 +7,20 @@
 [sub_resource type="GDScript" id="GDScript_35vvw"]
 script/source = "extends CharacterBody2D
 
-#Констаннты и переменные
+#Констаннты, переменные и сигналы
 const SPEED = 300.0
 const JUMP_VELOCITY = -400.0
 var state = MOVE
 var health = 100
 var gold = 0
 var combo = false
+var damage_basic = 10
+var damage_multiplier = 1
+var damage_current
 var player_pos
 @onready var anim = $AnimatedSprite2D
 @onready var animPlayer = $AnimationPlayer
+signal health_changed(new_health)
 
 #State Machine список состояний
 enum {
@@ -29,6 +33,20 @@ enum {
 	DAMAGE,
 	DEATH
 }
+
+#Получение значения урона от врага
+func _on_damage_received(enemy_damage):
+	if state == BLOCK:
+		enemy_damage /= 2
+	elif state == SLIDE:
+		enemy_damage = 0
+	else:
+		state = DAMAGE
+	health -= enemy_damage
+	if health <= 0:
+		health = 0
+		state = DEATH
+	emit_signal(\"health_changed\", health)
 
 func  _ready() -> void:
 	#Получение сигнала о нанесенном уроне игроку врагом
@@ -56,6 +74,7 @@ func move_state():
 	
 	#Прыжок
 	if Input.is_action_pressed(\"jump\") and is_on_floor(): #Input.is_action_just_pressed(\"ui_accept\") and is_on_floor() фиксирует нажатие на пробел когда игрок на полу
+		animPlayer.animation_finished
 		velocity.y = JUMP_VELOCITY
 		animPlayer.play(\"Jump\")
 	
@@ -73,6 +92,9 @@ func move_state():
 
 #Подкат
 func slide_state():
+	if velocity.y > 0:
+		animPlayer.animation_finished
+		animPlayer.play(\"Fall\")
 	#Если на земле и взависимости от того куда смотришь ставиться скорость и включается анимация подката
 	if is_on_floor() and anim.flip_h == false:
 		velocity.x = 300
@@ -80,11 +102,13 @@ func slide_state():
 		velocity.x = -300
 	animPlayer.play(\"Slide\")
 	
+	
+	
 	#Переключение состояния взависимости от нажатия кнопок
-	if Input.is_action_pressed(\"block\"):
-		state = BLOCK
-	if Input.is_action_pressed(\"jump\") or Input.is_action_pressed(\"left\") or Input.is_action_pressed(\"right\"):
-		state = MOVE
+	#if Input.is_action_pressed(\"block\"):
+		#state = BLOCK
+	#if Input.is_action_pressed(\"jump\") or Input.is_action_pressed(\"left\") or Input.is_action_pressed(\"right\"):
+		#state = MOVE
 	if Input.is_action_pressed(\"attack\"):
 		state = ATTACK
 	
@@ -94,9 +118,12 @@ func slide_state():
 
 #Блокирование щитом
 func block_state():
-	velocity.x = 0
-	animPlayer.play(\"Block\")
-	if Input.is_action_just_released(\"block\"):
+	if is_on_floor():
+		velocity.x = 0
+		animPlayer.play(\"Block\")
+		if Input.is_action_just_released(\"block\"):
+			state = MOVE
+	else:
 		state = MOVE
 
 #Состояние комбо
@@ -128,6 +155,10 @@ func combo2_state():
 	await animPlayer.animation_finished
 	state = MOVE
 
+#Отправка сигнала об уроне врагу
+func _on_hit_box_area_entered(area: Area2D) -> void:
+	Signals.emit_signal(\"player_attack\", damage_current)
+
 #Анимация получения урона
 func damage_state():
 	velocity.x = 0
@@ -142,15 +173,6 @@ func death_state():
 	await get_tree().create_timer(1.2).timeout
 	queue_free()
 	get_tree().change_scene_to_file.bind(\"res://menu.tscn\").call_deferred()
-
-#Получение значения урона от врага
-func _on_damage_received(enemy_damage):
-	health -= enemy_damage
-	if health <= 0:
-		health = 0
-		state = DEATH
-	else:
-		state = DAMAGE
 
 func _physics_process(delta: float) -> void:
 	#Гравитация
@@ -176,7 +198,8 @@ func _physics_process(delta: float) -> void:
 		DEATH:
 			death_state()
 
-	
+	#Урон игрока взависимости от того как он будет попадать в комбо
+	damage_current = damage_basic * damage_multiplier
 
 	move_and_slide()
 
@@ -1083,7 +1106,7 @@ shape = SubResource("CapsuleShape2D_75gox")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -13)
 sprite_frames = SubResource("SpriteFrames_gl0s2")
-animation = &"Death"
+animation = &"Slide"
 autoplay = "Idle"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -1116,5 +1139,7 @@ collision_mask = 32
 
 [node name="CollisionShape2D" parent="AttackDirection/DamageBox/HitBox" index="0"]
 position = Vector2(19, 0)
+
+[connection signal="area_entered" from="AttackDirection/DamageBox/HitBox" to="." method="_on_hit_box_area_entered"]
 
 [editable path="AttackDirection/DamageBox"]

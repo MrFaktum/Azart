@@ -6,19 +6,27 @@
 [node name="Menu" type="Node2D"]
 script = ExtResource("1_t83p7")
 
-[node name="Play" type="Button" parent="."]
+[node name="New game" type="Button" parent="."]
 offset_left = 512.0
-offset_top = 256.0
+offset_top = 192.0
 offset_right = 768.0
-offset_bottom = 319.0
+offset_bottom = 256.0
 theme_override_font_sizes/font_size = 40
-text = "Play"
+text = "New game"
+
+[node name="Select level" type="Button" parent="."]
+offset_left = 512.0
+offset_top = 320.0
+offset_right = 768.0
+offset_bottom = 384.0
+theme_override_font_sizes/font_size = 40
+text = "Select level"
 
 [node name="Quit" type="Button" parent="."]
 offset_left = 512.0
-offset_top = 384.0
+offset_top = 448.0
 offset_right = 768.0
-offset_bottom = 448.0
+offset_bottom = 512.0
 theme_override_font_sizes/font_size = 40
 text = "Quit"
 
@@ -32,6 +40,7 @@ text = "BD"
 
 [node name="BG" parent="." instance=ExtResource("2_enq56")]
 
-[connection signal="pressed" from="Play" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="New game" to="." method="_on_new_game_pressed"]
+[connection signal="pressed" from="Select level" to="." method="_on_select_level_pressed"]
 [connection signal="pressed" from="Quit" to="." method="_on_quit_pressed"]
 [connection signal="pressed" from="BD" to="." method="_on_bd_pressed"]

@@ -40,7 +40,7 @@ func _on_attack_range_body_entered(_body: Node2D) -> void:
 	state = ATTACK
 
 #Передача сигнала игроку о нанесении ему урона
-func _on_hit_box_area_entered(area: Area2D) -> void:
+func _on_hit_box_area_entered(_area: Area2D) -> void:
 	Signals.emit_signal("enemy_attack", damage)
 
 #Состояние стояние атаки
