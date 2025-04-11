@@ -8,9 +8,11 @@ func _ready() -> void:
 	database = SQLite.new()
 	database.path="res://data.db"
 	database.open_db()
-	
-	#Обращаемся к сохранению в БД и если там написанно что игрок тоько на 1 уровне то кнопка 2 уровня выключается
-	if database.query("SELECT save FROM players WHERE save = 1;") == true:
+
+	#Создаем запрос
+	database.query("SELECT save FROM players")
+	#Обращаемся к последнему запросу достаем от туда нужный элемент и если там написанно что игрок тоько на 1 уровне то кнопка 2 уровня выключается
+	if database.query_result[0].save == "1":
 		$level2.disabled = true
 
 #Запускает 1 уровень

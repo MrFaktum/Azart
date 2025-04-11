@@ -1,0 +1,75 @@
+[gd_scene load_steps=11 format=3 uid="uid://b23pei1lmq73j"]
+
+[ext_resource type="Texture2D" uid="uid://dq61vuj1o51nv" path="res://assets/Lava/freelavatileset-Sheet.png" id="1_0jak3"]
+[ext_resource type="Script" uid="uid://cchy7kut62aij" path="res://scn/Lava/lava.gd" id="1_w14bs"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2k3bl"]
+atlas = ExtResource("1_0jak3")
+region = Rect2(45, 224, 53, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pr36v"]
+atlas = ExtResource("1_0jak3")
+region = Rect2(172, 224, 55, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qojwu"]
+atlas = ExtResource("1_0jak3")
+region = Rect2(300, 224, 54, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l3n8a"]
+atlas = ExtResource("1_0jak3")
+region = Rect2(427, 224, 57, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_acwdh"]
+atlas = ExtResource("1_0jak3")
+region = Rect2(555, 224, 56, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vp6kc"]
+atlas = ExtResource("1_0jak3")
+region = Rect2(556, 224, 56, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_fukxn"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2k3bl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pr36v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qojwu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l3n8a")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_acwdh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vp6kc")
+}],
+"loop": true,
+"name": &"Lava",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0jak3"]
+size = Vector2(58, 16)
+
+[node name="LavaZone" type="Area2D"]
+collision_layer = 128
+collision_mask = 2
+script = ExtResource("1_w14bs")
+
+[node name="Burn" type="AnimatedSprite2D" parent="."]
+position = Vector2(4, 0)
+sprite_frames = SubResource("SpriteFrames_fukxn")
+animation = &"Lava"
+autoplay = "Lava"
+frame_progress = 0.680416
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(4, 0)
+shape = SubResource("RectangleShape2D_0jak3")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

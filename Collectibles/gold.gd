@@ -1,5 +1,7 @@
 extends Area2D
 
+#(Для себя) Тестовая механика. Потом нужно удалить
+
 func _on_body_entered(body: Node2D) -> void:
 	if body.name == "Player":
 		var tween = get_tree().create_tween() #суем в переменную вызов ф-ции 

@@ -1,6 +1,6 @@
 extends Control
 
-#Меню работы с базой данных разработчика
+#Меню работы с базой данных разработчика. Потом нужно удалить
 
 #Создание обекта БД
 var database : SQLite
@@ -10,9 +10,6 @@ func _ready() -> void:
 	database = SQLite.new()
 	database.path="res://data.db"
 	database.open_db()
-
-func _process(delta: float) -> void:
-	pass
 
 #Создает запись в строке save вставляя данные из SaveTextEdit
 func _on_insert_data_pressed() -> void:

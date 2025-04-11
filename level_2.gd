@@ -1,17 +1,27 @@
 extends Node2D
 
 #Переменные
-@onready var player = $Player/Player
-@onready var health_bar = $CanvasLayer/HealthBar
+
 
 func _ready() -> void:
-	#Изменение значениея здоровья в HealthBar
-	health_bar.max_value = player.health
-	health_bar.value = health_bar.max_value
+	$CanvasLayer/Tips.visible = false
+	$CanvasLayer/Menu.disabled = true
+	$CanvasLayer/Menu.visible = false
 
-func _process(delta: float) -> void:
-	pass
+#Переход на 2 уровень
+func _on_exit_body_entered(body: Node2D) -> void:
+	#Настройка отбражения финального экрана
+	$Player.queue_free()
+	$Mobs.queue_free()
+	$BG.visible = false
+	$TileMapLayer.visible = false
+	$Exit.queue_free()
+	$Lava.queue_free()
+	$CanvasLayer/Tips.text = ("Поздровляю вы прошли 2 уровень")
+	$CanvasLayer/Tips.visible = true
+	$CanvasLayer/Menu.disabled = false
+	$CanvasLayer/Menu.visible = true
 
-#Получение значение здоровья от игрока
-func _on_player_health_changed(new_health: Variant) -> void:
-	health_bar.value = new_health
+#Переход на окно главного меню
+func _on_menu_pressed() -> void:
+	get_tree().change_scene_to_file("res://menu.tscn")

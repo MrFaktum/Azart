@@ -12,7 +12,7 @@ offset_top = 192.0
 offset_right = 768.0
 offset_bottom = 256.0
 theme_override_font_sizes/font_size = 40
-text = "New game"
+text = "Новая игра"
 
 [node name="Select level" type="Button" parent="."]
 offset_left = 512.0
@@ -20,7 +20,7 @@ offset_top = 320.0
 offset_right = 768.0
 offset_bottom = 384.0
 theme_override_font_sizes/font_size = 40
-text = "Select level"
+text = "Уровни"
 
 [node name="Quit" type="Button" parent="."]
 offset_left = 512.0
@@ -28,7 +28,7 @@ offset_top = 448.0
 offset_right = 768.0
 offset_bottom = 512.0
 theme_override_font_sizes/font_size = 40
-text = "Quit"
+text = "Выйти"
 
 [node name="BD" type="Button" parent="."]
 offset_left = 1088.0
