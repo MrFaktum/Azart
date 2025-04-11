@@ -8,5 +8,3 @@ signal enemy_attack(enemy_damage)
 
 #Передает нанесенный урон врагу
 signal player_attack(player_damage)
-
-#signal tips(tips_text)

@@ -8,7 +8,7 @@ signal damage_received()
 @onready var animPlayer = $AnimationPlayer
 var player_dmg
 
-
+#Переход между состояниями (одновременно переменная, сигнал и ф-ция). Отображение полоски здоровья врага пока у него есть здоровье.
 var health = 100:
 	set (value):
 		health = value
@@ -18,13 +18,14 @@ var health = 100:
 		else:
 			health_bar.visible = true
 
-
 func _ready() -> void:
+	#Получеение сигнала уроне нанесенном игроком 
 	Signals.connect("player_attack", Callable(self, "_on_damage_received"))
 	
-	#Изменение прозрачности текста в начале по умолчанию
+	#Изменение прозрачности текста урона по врагу в начале по умолчанию
 	damage_text.modulate.a = 0
 	
+	#Установка отображения здоровья на максимус и отключение отображения полоски здоровья врака пока его не ударят в 1-вый раз в начале игры
 	health_bar.max_value = health
 	health_bar.visible = false
 	
@@ -32,7 +33,7 @@ func _ready() -> void:
 func _on_damage_received(player_damage):
 	player_dmg = player_damage
 
-
+#Нанесение урона только тем врагам которых ударили а не всех которые есть на сцене сразу
 func _on_hurt_box_area_entered(area: Area2D) -> void:
 	await get_tree().create_timer(0.05).timeout
 	health -= player_dmg

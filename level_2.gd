@@ -1,9 +1,7 @@
 extends Node2D
 
-#Переменные
-
-
 func _ready() -> void:
+	#Отключение постоянного отображения подсказки и кнопок переходов в меню
 	$CanvasLayer/Tips.visible = false
 	$CanvasLayer/Menu.disabled = true
 	$CanvasLayer/Menu.visible = false

@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=4 uid="uid://byii4i442ckev"]
+[gd_scene load_steps=22 format=4 uid="uid://byii4i442ckev"]
 
 [ext_resource type="Script" uid="uid://d23jwc2dhwyio" path="res://level.gd" id="1_2orkt"]
 [ext_resource type="PackedScene" uid="uid://ls6wblu7j7xp" path="res://Player/player.tscn" id="1_bk5fi"]
@@ -491,21 +491,6 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2orkt"]
 size = Vector2(32, 52)
 
-[sub_resource type="GDScript" id="GDScript_km5ld"]
-script/source = "extends Node2D
-
-#(Для себя) Тестовая механика. Потом нужно удалить
-
-var gold = preload(\"res://Collectibles/gold.tscn\")
-
-#func _on_timer_timeout() -> void:
-	#var goldTemp = gold.instantiate() #вызов ф-ции создание копии обекта суем в переменную
-	#var rng = RandomNumberGenerator.new() #вызов ф-ции рандомайзер в переменную
-	#var randint = randi_range(270, 384)
-	#goldTemp.position = Vector2(randint, 568)
-	#add_child(goldTemp) #добавляет дочерний узел в сцену
-"
-
 [node name="Level" type="Node2D"]
 script = ExtResource("1_2orkt")
 
@@ -645,13 +630,6 @@ frame_progress = 0.265921
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Exit"]
 position = Vector2(1215, 552)
 shape = SubResource("RectangleShape2D_2orkt")
-
-[node name="Collectibles" type="Node2D" parent="."]
-script = SubResource("GDScript_km5ld")
-
-[node name="Timer" type="Timer" parent="Collectibles"]
-wait_time = 3.0
-autostart = true
 
 [connection signal="pressed" from="CanvasLayer/Menu" to="." method="_on_menu_pressed"]
 [connection signal="pressed" from="CanvasLayer/Continue" to="." method="_on_continue_pressed"]
