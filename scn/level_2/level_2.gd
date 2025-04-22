@@ -7,12 +7,12 @@ func _ready() -> void:
 	$CanvasLayer/Menu.visible = false
 
 #Переход на 2 уровень
-func _on_exit_body_entered(body: Node2D) -> void:
+func _on_exit_body_entered(_body: Node2D) -> void:
 	#Настройка отбражения финального экрана
 	$Player.queue_free()
 	$Mobs.queue_free()
 	$BG.visible = false
-	$TileMapLayer.visible = false
+	$Tiles.visible = false
 	$Exit.queue_free()
 	$Lava.queue_free()
 	$CanvasLayer/Tips.text = ("Поздровляю вы прошли 2 уровень")

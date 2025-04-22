@@ -166,7 +166,7 @@ func combo2_state():
 	state = MOVE
 
 #Отправка сигнала об уроне врагу
-func _on_hit_box_area_entered(area: Area2D) -> void:
+func _on_hit_box_area_entered(_area: Area2D) -> void:
 	Signals.emit_signal(\"player_attack\", damage_current)
 
 #Анимация получения урона

@@ -42,11 +42,11 @@ func chase_state():
 	anim.play("Run")
 
 #Вход в зону агра
-func _on_detector_body_entered(body: Node2D) -> void:
+func _on_detector_body_entered(_body: Node2D) -> void:
 	state = CHASE
 
 #Выход из зоны агра
-func _on_detector_body_exited(body: Node2D) -> void:
+func _on_detector_body_exited(_body: Node2D) -> void:
 	state = IDLE
 
 #Анимация получение урона

@@ -34,7 +34,7 @@ func _on_damage_received(player_damage):
 	player_dmg = player_damage
 
 #Нанесение урона только тем врагам которых ударили а не всех которые есть на сцене сразу
-func _on_hurt_box_area_entered(area: Area2D) -> void:
+func _on_hurt_box_area_entered(_area: Area2D) -> void:
 	await get_tree().create_timer(0.05).timeout
 	health -= player_dmg
 	damage_text.text = str(player_dmg)

@@ -50,7 +50,7 @@ func _on_exit_body_entered(_body: Node2D) -> void:
 	$Mobs.queue_free()
 	$CanvasLayer/Tips.text = ("Поздровляю вы прошли 1 уровень")
 	$BG.visible = false
-	$TileMapLayer.visible = false
+	$Tiles.visible = false
 	$Signs.visible = false
 	$Exit.queue_free()
 	$LavaZone.queue_free()
