@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dq61vuj1o51nv"
-path="res://.godot/imported/freelavatileset-Sheet.png-73b6483b9fe163f690511e6e78e5ba53.ctex"
+uid="uid://xpebxwr12bt8"
+path="res://.godot/imported/shop_anim.png-4ef9e0a3b312de25b451415cdf8dc97a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/lava/freelavatileset-Sheet.png"
-dest_files=["res://.godot/imported/freelavatileset-Sheet.png-73b6483b9fe163f690511e6e78e5ba53.ctex"]
+source_file="res://assets/decorations/shop_anim.png"
+dest_files=["res://.godot/imported/shop_anim.png-4ef9e0a3b312de25b451415cdf8dc97a.ctex"]
 
 [params]
 

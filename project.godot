@@ -11,13 +11,13 @@ config_version=5
 [application]
 
 config/name="Azart"
-run/main_scene="res://menu.tscn"
+run/main_scene="res://scn/menu/menu.tscn"
 config/features=PackedStringArray("4.4", "Mobile")
-config/icon="res://icon.svg"
+config/icon="res://assets/icon.svg"
 
 [autoload]
 
-Signals="*res://signals.gd"
+Signals="*res://scn/signals.gd"
 
 [display]
 

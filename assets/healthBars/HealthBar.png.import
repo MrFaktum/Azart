@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dq61vuj1o51nv"
-path="res://.godot/imported/freelavatileset-Sheet.png-73b6483b9fe163f690511e6e78e5ba53.ctex"
+uid="uid://brvkfn5m3w2fj"
+path="res://.godot/imported/HealthBar.png-1d6a448a0caef45065a2767aaa993f33.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/lava/freelavatileset-Sheet.png"
-dest_files=["res://.godot/imported/freelavatileset-Sheet.png-73b6483b9fe163f690511e6e78e5ba53.ctex"]
+source_file="res://assets/healthBars/HealthBar.png"
+dest_files=["res://.godot/imported/HealthBar.png-1d6a448a0caef45065a2767aaa993f33.ctex"]
 
 [params]
 

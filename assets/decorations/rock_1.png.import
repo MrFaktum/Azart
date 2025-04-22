@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dq61vuj1o51nv"
-path="res://.godot/imported/freelavatileset-Sheet.png-73b6483b9fe163f690511e6e78e5ba53.ctex"
+uid="uid://b5630nuanwavy"
+path="res://.godot/imported/rock_1.png-9e7e1e5d5634c907f02f55320f3c1831.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/lava/freelavatileset-Sheet.png"
-dest_files=["res://.godot/imported/freelavatileset-Sheet.png-73b6483b9fe163f690511e6e78e5ba53.ctex"]
+source_file="res://assets/decorations/rock_1.png"
+dest_files=["res://.godot/imported/rock_1.png-9e7e1e5d5634c907f02f55320f3c1831.ctex"]
 
 [params]
 

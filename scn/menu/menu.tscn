@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8y73ofipli0f"]
+
+[ext_resource type="Script" uid="uid://bdeio2vpx83na" path="res://scn/menu/menu.gd" id="1_eacbr"]
+[ext_resource type="PackedScene" uid="uid://bepqx6r6xnb6c" path="res://scn/bg/bg.tscn" id="2_6fijp"]
+
+[node name="Menu" type="Node2D"]
+script = ExtResource("1_eacbr")
+
+[node name="New game" type="Button" parent="."]
+offset_left = 512.0
+offset_top = 192.0
+offset_right = 768.0
+offset_bottom = 256.0
+theme_override_font_sizes/font_size = 40
+text = "Новая игра"
+
+[node name="Select level" type="Button" parent="."]
+offset_left = 512.0
+offset_top = 320.0
+offset_right = 768.0
+offset_bottom = 384.0
+theme_override_font_sizes/font_size = 40
+text = "Уровни"
+
+[node name="Quit" type="Button" parent="."]
+offset_left = 512.0
+offset_top = 448.0
+offset_right = 768.0
+offset_bottom = 512.0
+theme_override_font_sizes/font_size = 40
+text = "Выйти"
+
+[node name="BG" parent="." instance=ExtResource("2_6fijp")]
+
+[connection signal="pressed" from="New game" to="." method="_on_new_game_pressed"]
+[connection signal="pressed" from="Select level" to="." method="_on_select_level_pressed"]
+[connection signal="pressed" from="Quit" to="." method="_on_quit_pressed"]
