@@ -1,15 +1,12 @@
 extends Node2D
 
-#Создание обекта БД и переменные 
 var database : SQLite
 
 func _ready() -> void:
-	#Соединяется с БД в файлах игры
 	database = SQLite.new()
 	database.path="res://data.db"
 	database.open_db()
 	
-	#Отключение постоянного отображения подсказки и кнопок переходов в меню и на 2 уровень
 	$CanvasLayer/Tips.visible = false
 	$CanvasLayer/Continue.disabled = true
 	$CanvasLayer/Continue.visible = false
@@ -21,7 +18,8 @@ func _on_assistant_area_entered(_area: Area2D) -> void:
 	$CanvasLayer/Tips.text = ("Бег (Стрелки лево, право)
 Щит (S)
 Меч (D)
-Подкат (Ctrl)")
+Подкат (Ctrl)
+Прыжок (Space)")
 	$CanvasLayer/Tips.visible = true
 
 #Когда игрок выходит из обасти 1 знака выключает подсказку
@@ -43,9 +41,7 @@ func _on_assistant_2_area_exited(a_rea: Area2D) -> void:
 
 #Переход на 2 уровень
 func _on_exit_body_entered(_body: Node2D) -> void:
-	#Сохранение прогресса достижения 2-го уровня в бд
 	database.query("UPDATE players SET save = 2;")
-	#Настройка отбражения финального экрана
 	$Player.queue_free()
 	$Mobs.queue_free()
 	$CanvasLayer/Tips.text = ("Поздровляю вы прошли 1 уровень")

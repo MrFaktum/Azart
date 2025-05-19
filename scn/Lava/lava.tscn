@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://b23pei1lmq73j"]
 
-[ext_resource type="Texture2D" uid="uid://dq61vuj1o51nv" path="res://assets/lava/freelavatileset-Sheet.png" id="1_0jak3"]
+[ext_resource type="Texture2D" uid="uid://dq61vuj1o51nv" path="res://assets/Lava/freelavatileset-Sheet.png" id="1_0jak3"]
 [ext_resource type="Script" uid="uid://cchy7kut62aij" path="res://scn/lava/lava.gd" id="1_w14bs"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2k3bl"]

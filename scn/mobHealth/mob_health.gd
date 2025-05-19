@@ -1,6 +1,5 @@
 extends Node2D
 
-#Сигналы и переменные
 signal no_health()
 signal damage_received()
 @onready var health_bar = $HealthBar
@@ -19,13 +18,10 @@ var health = 100:
 			health_bar.visible = true
 
 func _ready() -> void:
-	#Получеение сигнала уроне нанесенном игроком 
 	Signals.connect("player_attack", Callable(self, "_on_damage_received"))
 	
-	#Изменение прозрачности текста урона по врагу в начале по умолчанию
 	damage_text.modulate.a = 0
 	
-	#Установка отображения здоровья на максимус и отключение отображения полоски здоровья врака пока его не ударят в 1-вый раз в начале игры
 	health_bar.max_value = health
 	health_bar.visible = false
 	

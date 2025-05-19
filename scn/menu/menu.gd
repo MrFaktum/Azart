@@ -1,10 +1,8 @@
 extends Node2D
 
-#Создание обекта БД
 var database : SQLite
 
 func _ready() -> void:
-	#Соединяется с БД в файлах игры
 	database = SQLite.new()
 	database.path="res://data.db"
 	database.open_db()

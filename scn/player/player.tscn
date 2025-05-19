@@ -10,7 +10,6 @@
 [sub_resource type="GDScript" id="GDScript_35vvw"]
 script/source = "extends CharacterBody2D
 
-#Констаннты, переменные и сигнал
 const SPEED = 300.0
 const JUMP_VELOCITY = -400.0
 var state = MOVE
@@ -37,8 +36,8 @@ enum {
 	DAMAGE,
 	DEATH
 }
+
 func _ready() -> void:
-	#Получение сигнала о нанесенном уроне игроку врагом
 	Signals.connect(\"enemy_attack\", Callable(self, \"_on_damage_received\"))
 	
 #Получение значения урона от врага
@@ -57,19 +56,16 @@ func _on_damage_received(enemy_damage):
 
 #Бег и прышки
 func move_state():
-	#Бег
 	var direction := Input.get_axis(\"left\", \"right\") #Input.get_axis(\"left\", \"right\") получает ось -1 или 1 при нажетие стрелок лево или право
 	if direction:
 		velocity.x = direction * SPEED
 		if velocity.y == 0:
 			animPlayer.play(\"Run\")
-	#Остановка
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED) #move_toward(velocity.x, 0, SPEED) скорость стремиться к 0
 		if velocity.y == 0:
 			animPlayer.play(\"Idle\")
 	
-	#Разворот спрайта относительно раправления движения
 	if direction == -1:
 		anim.flip_h = true
 		$AttackDirection.rotation_degrees = 180
@@ -77,17 +73,14 @@ func move_state():
 		anim.flip_h = false
 		$AttackDirection.rotation_degrees = 0
 	
-	#Прыжок
 	if Input.is_action_pressed(\"jump\") and is_on_floor(): #Input.is_action_just_pressed(\"ui_accept\") and is_on_floor() фиксирует нажатие на пробел когда игрок на полу
 		animPlayer.animation_finished
 		velocity.y = JUMP_VELOCITY
 		animPlayer.play(\"Jump\")
 	
-	#Включение анимации падения
 	if velocity.y > 0:
 		animPlayer.play(\"Fall\")
 	
-	#Переключение состояния взависимости от нажатия кнопок
 	if Input.is_action_pressed(\"block\"):
 		state = BLOCK
 	if Input.is_action_pressed(\"slide\") and is_on_floor():
@@ -101,18 +94,15 @@ func slide_state():
 	if velocity.y > 0:
 		animPlayer.animation_finished
 		animPlayer.play(\"Fall\")
-	#Если на земле и взависимости от того куда смотришь ставиться скорость и включается анимация подката
 	if is_on_floor() and anim.flip_h == false:
 		velocity.x = 300
 	elif is_on_floor() and anim.flip_h == true:
 		velocity.x = -300
 	animPlayer.play(\"Slide\")
 
-	#Переключение состояния взависимости от нажатия кнопок
 	if Input.is_action_pressed(\"attack\"):
 		state = ATTACK
 	
-	#Ожидается завержение анимации и переход в состояние MOVE
 	await animPlayer.animation_finished
 	freeze()
 	state = MOVE
@@ -185,14 +175,11 @@ func death_state():
 	get_tree().change_scene_to_file.bind(\"res://scn/menu/menu.tscn\").call_deferred()
 
 func _physics_process(delta: float) -> void:
-	#Отображение здоровья
 	$CanvasLayer/HealthBar.value = health
 	
-	#Гравитация
 	if not is_on_floor():
-		velocity += get_gravity() * delta #delta переменная которая зависит от мощиности пк
+		velocity += get_gravity() * delta
 	
-	#Урон игрока взависимости от того как он будет попадать в комбо
 	damage_current = damage_basic * damage_multiplier
 	
 	#State Machine список состояний и какие ф-ции вызываются при определенном состоянии
@@ -216,9 +203,7 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-	#Получаем свою позицию
 	player_pos = self.position
-	#Передаем свое местоположение в глобальный скрипт
 	Signals.emit_signal(\"player_position_update\", player_pos)
 "
 

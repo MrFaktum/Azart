@@ -1,6 +1,5 @@
 extends ParallaxBackground
 
-#Скорость движения фона
 var speed = 100
 
 #Движение Фона

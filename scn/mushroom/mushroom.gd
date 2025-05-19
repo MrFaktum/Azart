@@ -1,6 +1,5 @@
 extends CharacterBody2D
 
-#Переменные
 @onready var anim = $AnimatedSprite2D
 @onready var animPlayer = $AnimationPlayer
 var player
@@ -113,16 +112,13 @@ var state: int = 0:
 
 func _ready() -> void:
 	$AttackDirection/AttackRange/CollisionShape2D.disabled = false
-	#Получение силгала о местонахождении игрока
 	Signals.connect("player_position_update", Callable(self, "on_player_position_update"))
 
 
 func _physics_process(delta: float) -> void:
-	#Гравитация
 	if not is_on_floor():
-		velocity += get_gravity() * delta #delta переменная которая зависит от мощиности пк
+		velocity += get_gravity() * delta
 
-	#Подерживают работу CHASE
 	if state == CHASE:
 		chase_state()
 

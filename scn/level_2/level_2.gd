@@ -1,14 +1,12 @@
 extends Node2D
 
 func _ready() -> void:
-	#Отключение постоянного отображения подсказки и кнопок переходов в меню
 	$CanvasLayer/Tips.visible = false
 	$CanvasLayer/Menu.disabled = true
 	$CanvasLayer/Menu.visible = false
 
 #Переход на 2 уровень
 func _on_exit_body_entered(_body: Node2D) -> void:
-	#Настройка отбражения финального экрана
 	$Player.queue_free()
 	$Mobs.queue_free()
 	$BG.visible = false
