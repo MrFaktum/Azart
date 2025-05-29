@@ -622,7 +622,6 @@ position = Vector2(1224, 689)
 position = Vector2(64, 654)
 
 [node name="LavaZone" parent="." instance=ExtResource("7_5o7lx")]
-physics_interpolation_mode = 1
 position = Vector2(277, 681)
 
 [node name="Tiles" type="Node2D" parent="."]
