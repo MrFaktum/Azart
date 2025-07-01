@@ -53,7 +53,7 @@ func damage_state():
 	velocity.x = move_toward(velocity.x, 0, SPEED)
 	animPlayer.play("Damage")
 	await animPlayer.animation_finished
-	state = CHASE
+	state = RECOVER
 
 #При получении урона включение состояния получения урона
 func _on_mob_health_damage_received() -> void:
@@ -77,6 +77,7 @@ func _on_hit_box_area_entered(_area: Area2D) -> void:
 
 #Гриб переходит в состояние атаки когда игрок попадает в зону атаки гриба
 func _on_attack_range_body_entered(_body: Node2D) -> void:
+	velocity.x = move_toward(velocity.x, 0, SPEED)
 	state = ATTACK
 
 #Состояние стояние атаки
@@ -88,6 +89,7 @@ func attack_state():
 
 #Перезарядка удара
 func recover_state():
+	velocity.x = move_toward(velocity.x, 0, SPEED)
 	animPlayer.play("Recover")
 	await animPlayer.animation_finished
 	state = CHASE
