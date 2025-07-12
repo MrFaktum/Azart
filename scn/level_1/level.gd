@@ -36,7 +36,7 @@ func _on_assistant_2_area_entered(_area: Area2D) -> void:
 	$CanvasLayer/Tips.visible = true
 
 #Когда игрок выходит из обасти 2 знака выключает подсказку
-func _on_assistant_2_area_exited(a_rea: Area2D) -> void:
+func _on_assistant_2_area_exited(_a_rea: Area2D) -> void:
 	$CanvasLayer/Tips.visible = false
 
 #Переход на 2 уровень

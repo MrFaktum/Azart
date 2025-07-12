@@ -54,7 +54,13 @@ func _on_damage_received(enemy_damage):
 		state = DEATH
 	emit_signal(\"health_changed\", health)
 
-#Бег и прышки
+#Перезарядка подката
+func freeze():
+	cooldown = true
+	await get_tree().create_timer(0.3).timeout
+	cooldown = false
+
+#Бег, прышки и гравитация
 func move_state():
 	var direction := Input.get_axis(\"left\", \"right\") #Input.get_axis(\"left\", \"right\") получает ось -1 или 1 при нажетие стрелок лево или право
 	if direction:
@@ -117,12 +123,6 @@ func block_state():
 	else:
 		state = MOVE
 
-#Перезарядка подката
-func freeze():
-	cooldown = true
-	await get_tree().create_timer(0.3).timeout
-	cooldown = false
-
 #Основная атака
 func attack_state():
 	damage_multiplier = 1
@@ -133,7 +133,7 @@ func attack_state():
 	await animPlayer.animation_finished
 	state = MOVE
 
-#Состояние комбо
+#Комбо
 func combo_state():
 	combo = true
 	await animPlayer.animation_finished

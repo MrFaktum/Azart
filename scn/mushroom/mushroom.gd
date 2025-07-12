@@ -1,5 +1,10 @@
 extends CharacterBody2D
 
+#Я случайно удалил анимацию плавного исчезновения можео будет портом вернуть
+#Изучит как работает пул обектов и обязательно его реализовать!
+
+var is_dead: bool = false
+
 @onready var anim = $AnimatedSprite2D
 @onready var animPlayer = $AnimationPlayer
 var player
@@ -18,18 +23,19 @@ enum {
 	RECOVER
 }
 
-#Состояние стояние на месте
+#Стоит на месте
 func idle_state():
 	velocity.x = 0
+	$AttackDirection/DamageBox/HitBox/CollisionShape2D.disabled = true
 	animPlayer.play("Idle")
-	#state = CHASE
 
 #Запись расположение игрока в переменную player
 func on_player_position_update(player_pos):
 	player = player_pos
 
-#Состояние преследования
+#Преследует
 func chase_state():
+	$AttackDirection/AttackRange/CollisionShape2D.disabled = false
 	direction = (player - self.position).normalized()
 	if direction.x < 0:
 		anim.flip_h = true
@@ -40,29 +46,39 @@ func chase_state():
 	velocity.x = direction.x * SPEED
 	anim.play("Run")
 
-#Вход в зону агра
+#Вход гроком в зону агра
 func _on_detector_body_entered(_body: Node2D) -> void:
+	if is_dead:
+		return
 	state = CHASE
+	
 
-#Выход из зоны агра
+#Выход гроком из зоны агра
 func _on_detector_body_exited(_body: Node2D) -> void:
+	if is_dead:
+		return
 	state = IDLE
 
 #Анимация получение урона
 func damage_state():
 	velocity.x = move_toward(velocity.x, 0, SPEED)
+	$AttackDirection/AttackRange/CollisionShape2D.disabled = true
+	$AttackDirection/DamageBox/HitBox/CollisionShape2D.disabled = true
 	animPlayer.play("Damage")
 	await animPlayer.animation_finished
 	state = RECOVER
 
 #При получении урона включение состояния получения урона
 func _on_mob_health_damage_received() -> void:
-	state = CHASE
 	state = DAMAGE
 
 #Анимация смерти и удаление обекта
 func death_state():
-	$Detector/CollisionShape2D.disabled = true
+	is_dead = true
+	velocity.x = move_toward(velocity.x, 0, SPEED)
+		#если хотим отключить несколько форм то можно использовать эти варианты для одной как я понял лучше использовать те которые стоят
+	$AttackDirection/AttackRange/CollisionShape2D.disabled = true #$AttackDirection/AttackRange.set_deferred("monitoring", false)
+	$Detector/CollisionShape2D.disabled = true #$Detector.set_deferred("monitoring", false)
 	animPlayer.play("Death")
 	await animPlayer.animation_finished
 	queue_free()
@@ -75,21 +91,22 @@ func _on_mob_health_no_health() -> void:
 func _on_hit_box_area_entered(_area: Area2D) -> void:
 	Signals.emit_signal("enemy_attack", damage)
 
-#Гриб переходит в состояние атаки когда игрок попадает в зону атаки гриба
+#Переход в состояние атаки когда игрок попадает в зону атаки гриба
 func _on_attack_range_body_entered(_body: Node2D) -> void:
-	velocity.x = move_toward(velocity.x, 0, SPEED)
 	state = ATTACK
 
-#Состояние стояние атаки
+#Атака
 func attack_state():
 	velocity.x = move_toward(velocity.x, 0, SPEED)
-	animPlayer.play("Attack")
+	animPlayer.play("Attack") #Тут в анимации у него есть тригер на включение HitBox на 0.6 секунде
 	await  animPlayer.animation_finished
 	state = RECOVER
 
 #Перезарядка удара
 func recover_state():
 	velocity.x = move_toward(velocity.x, 0, SPEED)
+	$AttackDirection/AttackRange/CollisionShape2D.disabled = true
+	$AttackDirection/DamageBox/HitBox/CollisionShape2D.disabled = true
 	animPlayer.play("Recover")
 	await animPlayer.animation_finished
 	state = CHASE
@@ -113,9 +130,7 @@ var state: int = 0:
 				recover_state()
 
 func _ready() -> void:
-	$AttackDirection/AttackRange/CollisionShape2D.disabled = false
 	Signals.connect("player_position_update", Callable(self, "on_player_position_update"))
-
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
