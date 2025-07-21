@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-#Изучит как работает пул обектов и обязательно его реализовать!
+#Изучить как работает пул обектов и обязательно его реализовать!
 
 var is_dead: bool = false
 
@@ -65,10 +65,11 @@ func damage_state():
 	$AttackDirection/DamageBox/HitBox/CollisionShape2D.disabled = true
 	animPlayer.play("Damage")
 	await animPlayer.animation_finished
-	state = RECOVER
+	state = CHASE
 
 #При получении урона включение состояния получения урона
 func _on_mob_health_damage_received() -> void:
+	state = IDLE
 	state = DAMAGE
 
 #Анимация смерти и удаление обекта
