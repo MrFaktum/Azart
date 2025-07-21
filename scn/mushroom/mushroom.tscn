@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=3 uid="uid://twinfrlm3e2x"]
+[gd_scene load_steps=53 format=3 uid="uid://twinfrlm3e2x"]
 
 [ext_resource type="Script" uid="uid://dtmmguouuth44" path="res://scn/mushroom/mushroom.gd" id="1_selrt"]
 [ext_resource type="Texture2D" uid="uid://15shltkb5x21" path="res://assets/mushroom/Attack.png" id="1_sjuu0"]
@@ -372,6 +372,18 @@ tracks/1/keys = {
 "update": 1,
 "values": ["Death"]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(2, 3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
 
 [sub_resource type="Animation" id="Animation_768lt"]
 length = 0.571429
@@ -468,12 +480,28 @@ tracks/1/keys = {
 "values": ["Run"]
 }
 
+[sub_resource type="Animation" id="Animation_kg56q"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_qisqa"]
 _data = {
 &"Attack": SubResource("Animation_ufykn"),
 &"Damage": SubResource("Animation_xshu0"),
 &"Death": SubResource("Animation_3ua80"),
 &"Idle": SubResource("Animation_768lt"),
+&"RESET": SubResource("Animation_kg56q"),
 &"Recover": SubResource("Animation_18fl2"),
 &"Run": SubResource("Animation_8pmuh")
 }
@@ -495,7 +523,7 @@ shape = SubResource("CapsuleShape2D_768lt")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -11)
 sprite_frames = SubResource("SpriteFrames_jq103")
-animation = &"Attack"
+animation = &"Death"
 autoplay = "Idle"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
