@@ -12,10 +12,7 @@ var health = 100:
 	set (value):
 		health = value
 		health_bar.value = health
-		if health <= 0:
-			health_bar.visible = false
-		else:
-			health_bar.visible = true
+		health_bar.visible = true
 
 func _ready() -> void:
 	Signals.connect("player_attack", Callable(self, "_on_damage_received"))
@@ -38,6 +35,7 @@ func _on_hurt_box_area_entered(_area: Area2D) -> void:
 	animPlayer.play("damage_text")
 	if health <= 0:
 		health = 0
+		health_bar.visible = false
 		damage_text.visible = false
 		emit_signal("no_health")
 	else:
