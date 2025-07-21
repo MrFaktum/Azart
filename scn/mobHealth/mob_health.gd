@@ -38,6 +38,7 @@ func _on_hurt_box_area_entered(_area: Area2D) -> void:
 	animPlayer.play("damage_text")
 	if health <= 0:
 		health = 0
+		damage_text.visible = false
 		emit_signal("no_health")
 	else:
 		emit_signal("damage_received")
