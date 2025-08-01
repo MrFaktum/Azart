@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-#Изучить как работает пул обектов и обязательно его реализовать!
+#Изучить как работает пул объектов и обязательно его реализовать!
 
 var is_dead: bool = false
 
@@ -28,14 +28,10 @@ func idle_state():
 	$AttackDirection/DamageBox/HitBox/CollisionShape2D.disabled = true
 	animPlayer.play("Idle")
 
-#Запись расположение игрока в переменную player
-func on_player_position_update(player_pos):
-	player = player_pos
-
 #Преследует
 func chase_state():
 	$AttackDirection/AttackRange/CollisionShape2D.disabled = false
-	direction = (player - self.position).normalized()
+	direction = (Global.player_pos - self.position).normalized()
 	if direction.x < 0:
 		anim.flip_h = true
 		$AttackDirection.rotation_degrees = 180
@@ -50,7 +46,6 @@ func _on_detector_body_entered(_body: Node2D) -> void:
 	if is_dead:
 		return
 	state = CHASE
-	
 
 #Выход гроком из зоны агра
 func _on_detector_body_exited(_body: Node2D) -> void:
@@ -76,7 +71,7 @@ func _on_mob_health_damage_received() -> void:
 func death_state():
 	is_dead = true
 	velocity.x = move_toward(velocity.x, 0, SPEED)
-		#если хотим отключить несколько форм то можно использовать эти варианты для одной как я понял лучше использовать те которые стоят
+	#если хотим отключить несколько форм то можно использовать варианты из коментарием, а для одной как я понял лучше использовать те которые стоят
 	$AttackDirection/AttackRange/CollisionShape2D.disabled = true #$AttackDirection/AttackRange.set_deferred("monitoring", false)
 	$Detector/CollisionShape2D.disabled = true #$Detector.set_deferred("monitoring", false)
 	animPlayer.play("Death")
@@ -128,9 +123,6 @@ var state: int = 0:
 				death_state()
 			RECOVER:
 				recover_state()
-
-func _ready() -> void:
-	Signals.connect("player_position_update", Callable(self, "on_player_position_update"))
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():

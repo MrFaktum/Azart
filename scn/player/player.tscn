@@ -18,8 +18,6 @@ var combo = false
 var cooldown = false
 var damage_basic = 10
 var damage_multiplier = 1
-var damage_current
-var player_pos
 var max_health = 100
 @onready var health_bar = $Health/HealthBar
 @onready var anim = $AnimatedSprite2D
@@ -44,7 +42,6 @@ enum {
 func _ready() -> void:
 	Signals.connect(\"enemy_attack\", Callable(self, \"_on_damage_received\"))
 	health = max_health
-	
 	
 #Получение значения урона от врага
 func _on_damage_received(enemy_damage):
@@ -160,10 +157,6 @@ func combo2_state():
 	await animPlayer.animation_finished
 	state = MOVE
 
-#Отправка сигнала об уроне врагу
-func _on_hit_box_area_entered(_area: Area2D) -> void:
-	Signals.emit_signal(\"player_attack\", damage_current)
-
 #Анимация получения урона
 func damage_state():
 	velocity.x = move_toward(velocity.x, 0, SPEED)
@@ -184,7 +177,7 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 	
-	damage_current = damage_basic * damage_multiplier
+	Global.player_dmg = damage_basic * damage_multiplier #Подумать о переносе приравнивания в ф-ции атаки для минимизации вызовов
 	
 	#State Machine список состояний и какие ф-ции вызываются при определенном состоянии
 	match state:
@@ -207,8 +200,7 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-	player_pos = self.position
-	Signals.emit_signal(\"player_position_update\", player_pos)
+	Global.player_pos = self.position
 "
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_75gox"]
@@ -1207,7 +1199,5 @@ collision_mask = 32
 [node name="CollisionShape2D" parent="AttackDirection/DamageBox/HitBox" index="0"]
 position = Vector2(10, 0)
 disabled = false
-
-[connection signal="area_entered" from="AttackDirection/DamageBox/HitBox" to="." method="_on_hit_box_area_entered"]
 
 [editable path="AttackDirection/DamageBox"]
