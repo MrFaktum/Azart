@@ -55,7 +55,7 @@ func _on_detector_body_exited(_body: Node2D) -> void:
 		return
 	state = IDLE
 
-#Анимация получение урона
+#Хит стан при получении урона
 func damage_state():
 	velocity.x = move_toward(velocity.x, 0, SPEED)
 	attack_range.disabled = true

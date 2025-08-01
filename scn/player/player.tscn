@@ -44,10 +44,12 @@ func _ready() -> void:
 	Signals.connect(\"enemy_attack\", Callable(self, \"_on_damage_received\"))
 	health = max_health
 
-#Анимация получения урона
+#Анимация получения урона и откидывание назад
 func damage_anim():
-	velocity.x = move_toward(velocity.x, 0, SPEED)
-	
+	self.modulate = Color(1,0,0,1)
+	var _tween = get_tree().create_tween() #Создание анимации свойств
+	_tween.tween_property(self, \"modulate\", Color(1,1,1,1), 0.1)
+	#Изменение цвета игрока. Если писать _tween.parallel().tween_property() то можно запускать 2 и более анимации одновременно
 
 #Получение значения урона от врага
 func _on_damage_received(enemy_damage):
@@ -71,9 +73,9 @@ func freeze():
 
 #Бег, прышки и гравитация
 func move_state():
-	var direction := Input.get_axis(\"left\", \"right\") #Input.get_axis(\"left\", \"right\") получает ось -1 или 1 при нажетие стрелок лево или право
-	if direction:
-		velocity.x = direction * SPEED
+	var _direction := Input.get_axis(\"left\", \"right\") #Input.get_axis(\"left\", \"right\") получает ось -1 или 1 при нажетие стрелок лево или право
+	if _direction:
+		velocity.x = _direction * SPEED
 		if velocity.y == 0:
 			anim_player.play(\"Run\")
 	else:
@@ -81,10 +83,10 @@ func move_state():
 		if velocity.y == 0:
 			anim_player.play(\"Idle\")
 	
-	if direction == -1:
+	if _direction == -1:
 		anim.flip_h = true
 		attack_dir.rotation_degrees = 180
-	elif direction == 1:
+	elif _direction == 1:
 		anim.flip_h = false
 		attack_dir.rotation_degrees = 0
 	
@@ -166,6 +168,7 @@ func combo2_state():
 
 #Хит стан при получении урона
 func damage_state():
+	velocity.x = move_toward(velocity.x, 0, SPEED)
 	anim.play(\"Damage\")
 	await anim.animation_finished
 	state = MOVE
