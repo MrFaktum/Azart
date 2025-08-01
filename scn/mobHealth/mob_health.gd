@@ -4,7 +4,7 @@ signal no_health()
 signal damage_received()
 @onready var health_bar = $HealthBar
 @onready var damage_text = $DamageText
-@onready var animPlayer = $AnimationPlayer
+@onready var anim_player = $AnimationPlayer
 
 #Переход между состояниями (одновременно переменная, сигнал и ф-ция). Отображение полоски здоровья врага пока у него есть здоровье.
 var health = 100:
@@ -25,8 +25,8 @@ func _on_hurt_box_area_entered(_area: Area2D) -> void:
 	await get_tree().create_timer(0.05).timeout
 	health -= Global.player_dmg
 	damage_text.text = str(Global.player_dmg)
-	animPlayer.stop()
-	animPlayer.play("damage_text")
+	anim_player.stop()
+	anim_player.play("damage_text")
 	if health <= 0:
 		health = 0
 		health_bar.visible = false

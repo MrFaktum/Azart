@@ -1,14 +1,14 @@
 extends Node2D
 
-var database : SQLite
+var data_base : SQLite
 
 func _ready() -> void:
-	database = SQLite.new()
-	database.path="res://data.db"
-	database.open_db()
+	data_base = SQLite.new()
+	data_base.path="res://data.db"
+	data_base.open_db()
 
-	database.query("SELECT save FROM players")
-	if database.query_result[0].save == "1":
+	data_base.query("SELECT save FROM players")
+	if data_base.query_result[0].save == "1":
 		$level2.disabled = true
 
 #Запускает 1 уровень

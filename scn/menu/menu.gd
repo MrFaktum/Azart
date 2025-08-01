@@ -1,15 +1,15 @@
 extends Node2D
 
-var database : SQLite
+var data_base : SQLite
 
 func _ready() -> void:
-	database = SQLite.new()
-	database.path="res://data.db"
-	database.open_db()
+	data_base = SQLite.new()
+	data_base.path="res://data.db"
+	data_base.open_db()
 
 #Изменяет БД на 1 уровень и запускает 1 уровень
 func _on_new_game_pressed() -> void:
-	database.query("UPDATE players SET save = 1;")
+	data_base.query("UPDATE players SET save = 1;")
 	get_tree().change_scene_to_file("res://scn/level_1/level.tscn")
 
 #Открывет окно выбора уровня

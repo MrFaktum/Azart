@@ -3,14 +3,16 @@ extends CharacterBody2D
 #Изучить как работает пул объектов и обязательно его реализовать!
 
 var is_dead: bool = false
-
-@onready var anim = $AnimatedSprite2D
-@onready var animPlayer = $AnimationPlayer
 var player
 const SPEED = 100
 var direction
 var damage = 20
 var chase = false
+@onready var anim = $AnimatedSprite2D
+@onready var anim_player = $AnimationPlayer
+@onready var hit_box = $AttackDirection/DamageBox/HitBox/CollisionShape2D
+@onready var attack_range = $AttackDirection/AttackRange/CollisionShape2D
+@onready var attack_dir = $AttackDirection
 
 #State Machine список состояний
 enum {
@@ -25,19 +27,19 @@ enum {
 #Стоит на месте
 func idle_state():
 	velocity.x = 0
-	$AttackDirection/DamageBox/HitBox/CollisionShape2D.disabled = true
-	animPlayer.play("Idle")
+	hit_box.disabled = true
+	anim_player.play("Idle")
 
 #Преследует
 func chase_state():
-	$AttackDirection/AttackRange/CollisionShape2D.disabled = false
+	attack_range.disabled = false
 	direction = (Global.player_pos - self.position).normalized()
 	if direction.x < 0:
 		anim.flip_h = true
-		$AttackDirection.rotation_degrees = 180
+		attack_dir.rotation_degrees = 180
 	else:
 		anim.flip_h = false
-		$AttackDirection.rotation_degrees = 0
+		attack_dir.rotation_degrees = 0
 	velocity.x = direction.x * SPEED
 	anim.play("Run")
 
@@ -56,10 +58,10 @@ func _on_detector_body_exited(_body: Node2D) -> void:
 #Анимация получение урона
 func damage_state():
 	velocity.x = move_toward(velocity.x, 0, SPEED)
-	$AttackDirection/AttackRange/CollisionShape2D.disabled = true
-	$AttackDirection/DamageBox/HitBox/CollisionShape2D.disabled = true
-	animPlayer.play("Damage")
-	await animPlayer.animation_finished
+	attack_range.disabled = true
+	hit_box.disabled = true
+	anim_player.play("Damage")
+	await anim_player.animation_finished
 	state = CHASE
 
 #При получении урона включение состояния получения урона
@@ -72,10 +74,10 @@ func death_state():
 	is_dead = true
 	velocity.x = move_toward(velocity.x, 0, SPEED)
 	#если хотим отключить несколько форм то можно использовать варианты из коментарием, а для одной как я понял лучше использовать те которые стоят
-	$AttackDirection/AttackRange/CollisionShape2D.disabled = true #$AttackDirection/AttackRange.set_deferred("monitoring", false)
+	attack_range.disabled = true #$AttackDirection/AttackRange.set_deferred("monitoring", false)
 	$Detector/CollisionShape2D.disabled = true #$Detector.set_deferred("monitoring", false)
-	animPlayer.play("Death")
-	await animPlayer.animation_finished
+	anim_player.play("Death")
+	await anim_player.animation_finished
 	queue_free()
 
 #При отсутствии здоровья включение состояния смерти
@@ -93,17 +95,17 @@ func _on_attack_range_body_entered(_body: Node2D) -> void:
 #Атака
 func attack_state():
 	velocity.x = move_toward(velocity.x, 0, SPEED)
-	animPlayer.play("Attack") #Тут в анимации у него есть тригер на включение HitBox на 0.6 секунде
-	await  animPlayer.animation_finished
+	anim_player.play("Attack") #Тут в анимации у него есть тригер на включение HitBox на 0.6 секунде
+	await  anim_player.animation_finished
 	state = RECOVER
 
 #Перезарядка удара
 func recover_state():
 	velocity.x = move_toward(velocity.x, 0, SPEED)
-	$AttackDirection/AttackRange/CollisionShape2D.disabled = true
-	$AttackDirection/DamageBox/HitBox/CollisionShape2D.disabled = true
-	animPlayer.play("Recover")
-	await animPlayer.animation_finished
+	attack_range.disabled = true
+	hit_box.disabled = true
+	anim_player.play("Recover")
+	await anim_player.animation_finished
 	state = CHASE
 
 #Переход между состояниями (одновременно переменная, сигнал и ф-ция)
