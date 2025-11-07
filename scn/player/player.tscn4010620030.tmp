@@ -1158,7 +1158,6 @@ collision_layer = 2
 script = SubResource("GDScript_35vvw")
 
 [node name="Maneger" type="Node" parent="."]
-process_mode = 3
 script = ExtResource("1_ufis8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -1218,8 +1217,4 @@ collision_mask = 32
 position = Vector2(10, 0)
 disabled = false
 
-[connection signal="pressed" from="UI/PauseMenu/Panel/VBoxContainer/Resume" to="Maneger" method="_on_resume_pressed"]
-[connection signal="pressed" from="UI/PauseMenu/Panel/VBoxContainer/Quit" to="Maneger" method="_on_quit_pressed"]
-
-[editable path="UI/PauseMenu"]
 [editable path="AttackDirection/DamageBox"]
