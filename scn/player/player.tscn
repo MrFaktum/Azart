@@ -25,6 +25,7 @@ var max_health = 100
 @onready var anim = $AnimatedSprite2D
 @onready var anim_player = $AnimationPlayer
 @onready var attack_dir = $AttackDirection
+@onready var hit_box = $AttackDirection/DamageBox/HitBox/CollisionShape2D
 var health:
 	set(value):
 		health = clamp(value, 0, max_health)
@@ -46,8 +47,9 @@ func _ready() -> void:
 	Signals.connect(\"enemy_attack\", Callable(self, \"_on_damage_received\"))
 	health = max_health
 
-#Анимация получения урона и откидывание назад
+#Анимация получения урона
 func damage_anim():
+	hit_box.disabled = true
 	self.modulate = Color(1,0,0,1)
 	var _tween = get_tree().create_tween() #Создание анимации свойств
 	_tween.tween_property(self, \"modulate\", Color(1,1,1,1), 0.1)
@@ -1167,7 +1169,7 @@ shape = SubResource("CapsuleShape2D_75gox")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -13)
 sprite_frames = SubResource("SpriteFrames_gl0s2")
-animation = &"Attack"
+animation = &"Idle"
 autoplay = "Idle"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]

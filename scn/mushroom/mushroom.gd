@@ -57,6 +57,7 @@ func _on_detector_body_exited(_body: Node2D) -> void:
 
 #Хит стан при получении урона
 func damage_state():
+	hit_box.disabled = true
 	velocity.x = move_toward(velocity.x, 0, SPEED)
 	attack_range.disabled = true
 	hit_box.disabled = true
