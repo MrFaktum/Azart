@@ -103,10 +103,12 @@ func attack_state():
 func recover_state():
 	velocity.x = move_toward(velocity.x, 0, SPEED)
 	hit_box.set_deferred("disabled", true)
-	attack_range.set_deferred("disabled", true)
 	anim_player.play("Recover")
 	await anim_player.animation_finished
-	state = CHASE
+	if $AttackDirection/AttackRange.has_overlapping_bodies():
+		state = ATTACK
+	else:
+		state = CHASE
 
 #Переход между состояниями (одновременно переменная, сигнал и ф-ция)
 var state: int = 0:
