@@ -32,7 +32,7 @@ func idle_state():
 
 #Преследует
 func chase_state():
-	attack_range.disabled = false
+	attack_range.set_deferred("disabled", false) #set_deferred("имя_свойства", значение) позволяет отложить изменение значения до окончания обработки физического кадра движком
 	direction = (Global.player_pos - self.position).normalized()
 	if direction.x < 0:
 		anim.flip_h = true
@@ -57,10 +57,9 @@ func _on_detector_body_exited(_body: Node2D) -> void:
 
 #Хит стан при получении урона
 func damage_state():
-	hit_box.disabled = true
+	hit_box.set_deferred("disabled", true)
+	attack_range.set_deferred("disabled", true)
 	velocity.x = move_toward(velocity.x, 0, SPEED)
-	attack_range.disabled = true
-	hit_box.disabled = true
 	anim_player.play("Damage")
 	await anim_player.animation_finished
 	state = CHASE
@@ -75,8 +74,8 @@ func death_state():
 	is_dead = true
 	velocity.x = move_toward(velocity.x, 0, SPEED)
 	#если хотим отключить несколько форм то можно использовать варианты из коментарием, а для одной как я понял лучше использовать те которые стоят
-	attack_range.disabled = true #$AttackDirection/AttackRange.set_deferred("monitoring", false)
-	$Detector/CollisionShape2D.disabled = true #$Detector.set_deferred("monitoring", false)
+	attack_range.set_deferred("disabled", true) #$AttackDirection/AttackRange.set_deferred("monitoring", false)
+	$Detector/CollisionShape2D.set_deferred("disabled", true) #$Detector.set_deferred("monitoring", false)
 	anim_player.play("Death")
 	await anim_player.animation_finished
 	queue_free()
@@ -103,8 +102,8 @@ func attack_state():
 #Перезарядка удара
 func recover_state():
 	velocity.x = move_toward(velocity.x, 0, SPEED)
-	attack_range.disabled = true
-	hit_box.disabled = true
+	hit_box.set_deferred("disabled", true)
+	attack_range.set_deferred("disabled", true)
 	anim_player.play("Recover")
 	await anim_player.animation_finished
 	state = CHASE

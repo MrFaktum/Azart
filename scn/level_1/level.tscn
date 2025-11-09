@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://crmyjlx6rxeka" path="res://assets/background/background_layer_3.png" id="4_2kj4n"]
 [ext_resource type="PackedScene" uid="uid://twinfrlm3e2x" path="res://scn/mushroom/mushroom.tscn" id="5_bte3d"]
 [ext_resource type="PackedScene" uid="uid://ls6wblu7j7xp" path="res://scn/player/player.tscn" id="6_0vsv5"]
-[ext_resource type="PackedScene" uid="uid://b23pei1lmq73j" path="res://scn/lava/lava.tscn" id="7_5o7lx"]
+[ext_resource type="PackedScene" uid="uid://b23pei1lmq73j" path="res://scn/Lava/lava.tscn" id="7_5o7lx"]
 [ext_resource type="Texture2D" uid="uid://bvet6xm6oqvre" path="res://assets/tilesLevels/tileset.png" id="8_57qpf"]
 [ext_resource type="Texture2D" uid="uid://bhixj7uk44l8d" path="res://assets/decorations/fence_1.png" id="8_oq4rd"]
 [ext_resource type="Texture2D" uid="uid://wwr7tkb7yihp" path="res://assets/decorations/sign.png" id="9_33e5q"]

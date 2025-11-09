@@ -6,6 +6,9 @@ signal damage_received()
 @onready var damage_text = $DamageText
 @onready var anim_player = $AnimationPlayer
 
+#В дальнейшем эта переменная будет нужна для задания разным мобам их индивидуального хп
+@export var max_health = 100 #@export нужен для вывода этого параметра в инспектор
+
 #Переход между состояниями (одновременно переменная, сигнал и ф-ция). Отображение полоски здоровья врага пока у него есть здоровье.
 var health = 100:
 	set (value):
@@ -14,10 +17,9 @@ var health = 100:
 		health_bar.visible = true
 
 func _ready() -> void:
-	
 	damage_text.modulate.a = 0
-	
-	health_bar.max_value = health
+	health_bar.max_value = max_health
+	health = max_health
 	health_bar.visible = false
 	
 #Нанесение урона только тем врагам которых ударили а не всех которые есть на сцене сразу

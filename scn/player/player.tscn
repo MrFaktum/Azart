@@ -49,7 +49,7 @@ func _ready() -> void:
 
 #Анимация получения урона
 func damage_anim():
-	hit_box.disabled = true
+	hit_box.set_deferred(\"disabled\", true)
 	self.modulate = Color(1,0,0,1)
 	var _tween = get_tree().create_tween() #Создание анимации свойств
 	_tween.tween_property(self, \"modulate\", Color(1,1,1,1), 0.1)
