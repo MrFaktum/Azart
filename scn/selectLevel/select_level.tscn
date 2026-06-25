@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://b8fg4kgsmjydd"]
+[gd_scene format=3 uid="uid://b8fg4kgsmjydd"]
 
 [ext_resource type="Script" uid="uid://bo4ljibrgtvnh" path="res://scn/selectLevel/select_level.gd" id="1_tecma"]
 [ext_resource type="PackedScene" uid="uid://bepqx6r6xnb6c" path="res://scn/bg/bg.tscn" id="2_c7i8e"]
@@ -6,12 +6,12 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ffrrg"]
 bg_color = Color(0, 0, 0, 0.470588)
 
-[node name="select_level" type="Node2D"]
+[node name="select_level" type="Node2D" unique_id=38292178]
 script = ExtResource("1_tecma")
 
-[node name="BG" parent="." instance=ExtResource("2_c7i8e")]
+[node name="BG" parent="." unique_id=1958418778 instance=ExtResource("2_c7i8e")]
 
-[node name="Info" type="Label" parent="."]
+[node name="Info" type="Label" parent="." unique_id=1197794669]
 offset_left = 448.0
 offset_top = 192.0
 offset_right = 824.0
@@ -20,7 +20,7 @@ theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = SubResource("StyleBoxFlat_ffrrg")
 text = "Выберете уровень"
 
-[node name="level1" type="Button" parent="."]
+[node name="level1" type="Button" parent="." unique_id=1891477518]
 offset_left = 448.0
 offset_top = 320.0
 offset_right = 576.0
@@ -28,7 +28,7 @@ offset_bottom = 448.0
 theme_override_font_sizes/font_size = 40
 text = "1"
 
-[node name="level2" type="Button" parent="."]
+[node name="level2" type="Button" parent="." unique_id=6701911]
 offset_left = 704.0
 offset_top = 320.0
 offset_right = 832.0

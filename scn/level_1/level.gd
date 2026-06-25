@@ -1,12 +1,6 @@
 extends Node2D
 
-var data_base : SQLite
-
 func _ready() -> void:
-	data_base = SQLite.new()
-	data_base.path="res://data.db"
-	data_base.open_db()
-	
 	$CanvasLayer/Tips.visible = false
 	$CanvasLayer/Continue.disabled = true
 	$CanvasLayer/Continue.visible = false
@@ -41,7 +35,11 @@ func _on_assistant_2_area_exited(_a_rea: Area2D) -> void:
 
 #Переход на 2 уровень
 func _on_exit_body_entered(_body: Node2D) -> void:
-	data_base.query("UPDATE players SET save = 2;")
+	# Если текущий макс. уровень меньше 2, повышаем его
+	if SaveManager.save_data["max_unlocked_level"] < 2:
+		SaveManager.save_data["max_unlocked_level"] = 2
+		SaveManager.save_game() # Сохраняем прогресс на диск
+	
 	$Player.queue_free()
 	$Mobs.queue_free()
 	$CanvasLayer/Tips.text = ("Поздровляю вы прошли 1 уровень")

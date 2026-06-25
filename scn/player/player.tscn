@@ -1,4 +1,4 @@
-[gd_scene load_steps=94 format=3 uid="uid://ls6wblu7j7xp"]
+[gd_scene format=3 uid="uid://ls6wblu7j7xp"]
 
 [ext_resource type="Texture2D" uid="uid://br30dvgd7cxg6" path="res://assets/character/char_blue_1.png" id="1_l8h54"]
 [ext_resource type="Script" uid="uid://csw82oscbbxus" path="res://scn/player/maneger.gd" id="1_ufis8"]
@@ -75,7 +75,7 @@ func freeze():
 	await get_tree().create_timer(0.3).timeout
 	cooldown = false
 
-#Бег, прышки и гравитация
+#Перемещение
 func move_state():
 	var _direction := Input.get_axis(\"left\", \"right\") #Input.get_axis(\"left\", \"right\") получает ось -1 или 1 при нажетие стрелок лево или право
 	if _direction:
@@ -84,6 +84,8 @@ func move_state():
 			anim_player.play(\"Run\")
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED) #move_toward(velocity.x, 0, SPEED) скорость стремиться к 0
+		#Альтернатива с переменной трение velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
+		#FRICTION * delta защита от просадок FPS
 		if velocity.y == 0:
 			anim_player.play(\"Idle\")
 	
@@ -1155,31 +1157,29 @@ _data = {
 &"Сombo2": SubResource("Animation_p5o4e")
 }
 
-[node name="Player" type="CharacterBody2D"]
+[node name="Player" type="CharacterBody2D" unique_id=1409844640]
 collision_layer = 2
 script = SubResource("GDScript_35vvw")
 
-[node name="Maneger" type="Node" parent="."]
+[node name="Maneger" type="Node" parent="." unique_id=78575469]
 process_mode = 3
 script = ExtResource("1_ufis8")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1165549542]
 shape = SubResource("CapsuleShape2D_75gox")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=748430891]
 position = Vector2(0, -13)
 sprite_frames = SubResource("SpriteFrames_gl0s2")
 animation = &"Idle"
 autoplay = "Idle"
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_gu6f8")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=398187012]
+libraries/ = SubResource("AnimationLibrary_gu6f8")
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=145389360]
 
-[node name="HealthBar" type="TextureProgressBar" parent="UI"]
+[node name="HealthBar" type="TextureProgressBar" parent="UI" unique_id=378503045]
 offset_right = 183.0
 offset_bottom = 48.0
 value = 50.0
@@ -1190,10 +1190,10 @@ texture_progress = ExtResource("5_od3ui")
 tint_progress = Color(1, 0, 0, 1)
 metadata/_edit_use_anchors_ = true
 
-[node name="PauseMenu" parent="UI" instance=ExtResource("6_7kq1b")]
+[node name="PauseMenu" parent="UI" unique_id=297449453 instance=ExtResource("6_7kq1b")]
 process_mode = 2
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=877897155]
 position = Vector2(0, -13)
 zoom = Vector2(2.5, 2.5)
 process_callback = 0
@@ -1204,9 +1204,9 @@ limit_bottom = 784
 position_smoothing_enabled = true
 drag_horizontal_enabled = true
 
-[node name="AttackDirection" type="Node2D" parent="."]
+[node name="AttackDirection" type="Node2D" parent="." unique_id=254555221]
 
-[node name="DamageBox" parent="AttackDirection" instance=ExtResource("3_btcbx")]
+[node name="DamageBox" parent="AttackDirection" unique_id=1292228158 instance=ExtResource("3_btcbx")]
 
 [node name="HurtBox" parent="AttackDirection/DamageBox" index="0"]
 collision_layer = 16

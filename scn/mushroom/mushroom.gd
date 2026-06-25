@@ -105,7 +105,7 @@ func recover_state():
 	hit_box.set_deferred("disabled", true)
 	anim_player.play("Recover")
 	await anim_player.animation_finished
-	if $AttackDirection/AttackRange.has_overlapping_bodies():
+	if $AttackDirection/AttackRange.has_overlapping_bodies(): #.has_overlapping_bodies() проверяет есть ли в его зоне считываемые объекты
 		state = ATTACK
 	else:
 		state = CHASE
@@ -134,5 +134,4 @@ func _physics_process(delta: float) -> void:
 
 	if state == CHASE:
 		chase_state()
-
 	move_and_slide()
