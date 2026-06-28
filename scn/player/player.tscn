@@ -3,10 +3,9 @@
 [ext_resource type="Texture2D" uid="uid://br30dvgd7cxg6" path="res://assets/character/char_blue_1.png" id="1_l8h54"]
 [ext_resource type="Script" uid="uid://cdwgglhfn7xmi" path="res://scn/player/player.gd" id="1_pbaik"]
 [ext_resource type="Texture2D" uid="uid://bbsribuweb683" path="res://assets/character/char_blue_2.png" id="2_4ntmi"]
+[ext_resource type="Script" uid="uid://dro6i4bfmssbp" path="res://scn/player/stats.gd" id="2_pbaik"]
 [ext_resource type="PackedScene" uid="uid://d0k83kjfcp6f3" path="res://scn/damageBox/damage_box.tscn" id="3_btcbx"]
-[ext_resource type="Texture2D" uid="uid://dusub7r6uaplr" path="res://assets/healthBars/HealthBarEmpty.png" id="3_fhl08"]
-[ext_resource type="Texture2D" uid="uid://brvkfn5m3w2fj" path="res://assets/healthBars/HealthBar.png" id="4_vtle1"]
-[ext_resource type="Texture2D" uid="uid://04w5hfa6cgnm" path="res://assets/healthBars/HealthBarFull.png" id="5_od3ui"]
+[ext_resource type="PackedScene" uid="uid://dq87gyugioikl" path="res://scn/ui/healthBar/health_bar.tscn" id="5_7kq1b"]
 [ext_resource type="PackedScene" uid="uid://b7gl0wjal365q" path="res://scn/ui/pauseMenu/pause_menu.tscn" id="6_7kq1b"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_75gox"]
@@ -308,7 +307,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_m0h3t")
 }],
-"loop": false,
+"loop": 0,
 "name": &"Attack",
 "speed": 10.0
 }, {
@@ -319,7 +318,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_j2n6q")
 }],
-"loop": true,
+"loop": 1,
 "name": &"Block",
 "speed": 6.0
 }, {
@@ -336,7 +335,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_iyprq")
 }],
-"loop": false,
+"loop": 0,
 "name": &"Damage",
 "speed": 10.0
 }, {
@@ -377,7 +376,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_qpoj2")
 }],
-"loop": false,
+"loop": 0,
 "name": &"Death",
 "speed": 10.0
 }, {
@@ -394,7 +393,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_k53q1")
 }],
-"loop": true,
+"loop": 1,
 "name": &"Fall",
 "speed": 5.0
 }, {
@@ -417,7 +416,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_apopc")
 }],
-"loop": true,
+"loop": 1,
 "name": &"Idle",
 "speed": 8.0
 }, {
@@ -446,7 +445,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_o28un")
 }],
-"loop": false,
+"loop": 0,
 "name": &"Jump",
 "speed": 10.0
 }, {
@@ -475,7 +474,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_sm0op")
 }],
-"loop": true,
+"loop": 1,
 "name": &"Run",
 "speed": 10.0
 }, {
@@ -504,7 +503,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_pqfba")
 }],
-"loop": false,
+"loop": 0,
 "name": &"Slide",
 "speed": 20.0
 }, {
@@ -518,7 +517,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_d30e8")
 }],
-"loop": false,
+"loop": 0,
 "name": &"Сombo1",
 "speed": 10.0
 }, {
@@ -547,7 +546,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_6eb1q")
 }],
-"loop": false,
+"loop": 0,
 "name": &"Сombo2",
 "speed": 10.0
 }]
@@ -952,6 +951,9 @@ _data = {
 collision_layer = 2
 script = ExtResource("1_pbaik")
 
+[node name="Stats" type="Node" parent="." unique_id=510668723]
+script = ExtResource("2_pbaik")
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1165549542]
 shape = SubResource("CapsuleShape2D_75gox")
 
@@ -966,16 +968,7 @@ libraries/ = SubResource("AnimationLibrary_gu6f8")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=145389360]
 
-[node name="HealthBar" type="TextureProgressBar" parent="UI" unique_id=378503045]
-offset_right = 183.0
-offset_bottom = 48.0
-value = 50.0
-nine_patch_stretch = true
-texture_under = ExtResource("3_fhl08")
-texture_over = ExtResource("4_vtle1")
-texture_progress = ExtResource("5_od3ui")
-tint_progress = Color(1, 0, 0, 1)
-metadata/_edit_use_anchors_ = true
+[node name="HealthBar" parent="UI" unique_id=1639929827 instance=ExtResource("5_7kq1b")]
 
 [node name="PauseMenu" parent="UI" unique_id=2138688118 instance=ExtResource("6_7kq1b")]
 
@@ -1006,5 +999,4 @@ collision_mask = 32
 position = Vector2(10, 0)
 disabled = false
 
-[editable path="UI/PauseMenu"]
 [editable path="AttackDirection/DamageBox"]

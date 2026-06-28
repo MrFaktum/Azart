@@ -20,7 +20,6 @@ func _process(_delta: float) -> void:
 		get_tree().paused = false
 		pause_menu.hide()
 
-# Перестали работать разобраться!
 func _on_resume_pressed() -> void:
 	game_paused = false
 

@@ -6,18 +6,13 @@ var state = MOVE
 var gold = 0
 var combo = false
 var cooldown = false
-var damage_basic = 10
 var damage_multiplier = 1
-var max_health = 100
 @onready var health_bar = $UI/HealthBar
 @onready var anim = $AnimatedSprite2D
 @onready var anim_player = $AnimationPlayer
 @onready var attack_dir = $AttackDirection
 @onready var hit_box = $AttackDirection/DamageBox/HitBox/CollisionShape2D
-var health:
-	set(value):
-		health = clamp(value, 0, max_health)
-		health_bar.value = health
+@onready var stats = $Stats
 
 #State Machine список состояний
 enum {
@@ -32,8 +27,15 @@ enum {
 }
 
 func _ready() -> void:
+	# Подписываем функцию Хелсбара на сигнал от Stats (зоздание связи между сигналом health_changed
+	# и функцией приемником update_health, теперь они постоянно связаны и update_health
+	# постоянно получает данные из health_changed как только он их отправляет)
+	stats.health_changed.connect(health_bar.update_health)
+	
+	# Принудительно обновляем Хелсбар при старте (чтобы он был полным)
+	health_bar.update_health(stats.health, stats.max_health)
+	
 	Signals.connect("enemy_attack", Callable(self, "_on_damage_received"))
-	health = max_health
 
 #Анимация получения урона
 func damage_anim():
@@ -41,7 +43,8 @@ func damage_anim():
 	self.modulate = Color(1,0,0,1)
 	var _tween = get_tree().create_tween() #Создание анимации свойств
 	_tween.tween_property(self, "modulate", Color(1,1,1,1), 0.1)
-	#Изменение цвета игрока. Если писать _tween.parallel().tween_property() то можно запускать 2 и более анимации одновременно
+	# Изменение цвета игрока. Если писать _tween.parallel().tween_property() то можно запускать 2 и
+	# более анимации одновременно
 
 #Получение значения урона от врага
 func _on_damage_received(enemy_damage):
@@ -52,9 +55,8 @@ func _on_damage_received(enemy_damage):
 	else:
 		state = DAMAGE
 		damage_anim()
-	health -= enemy_damage
-	if health <= 0:
-		health = 0
+	stats.health -= enemy_damage
+	if stats.health <= 0:
 		state = DEATH
 
 #Перезарядка подката
@@ -180,7 +182,7 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 	
-	Global.player_dmg = damage_basic * damage_multiplier #Подумать о переносе приравнивания в ф-ции атаки для минимизации вызовов
+	Global.player_dmg = stats.damage_basic * damage_multiplier #Подумать о переносе приравнивания в ф-ции атаки для минимизации вызовов
 	
 	#State Machine список состояний и какие ф-ции вызываются при определенном состоянии
 	match state:
