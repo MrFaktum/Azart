@@ -1,13 +1,12 @@
 extends Node
 
-@onready var pause_menu = $"../UI/PauseMenu"
+@onready var pause_menu = self
 
 var game_paused: bool = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.
-
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
@@ -21,6 +20,7 @@ func _process(_delta: float) -> void:
 		get_tree().paused = false
 		pause_menu.hide()
 
+# Перестали работать разобраться!
 func _on_resume_pressed() -> void:
 	game_paused = false
 
